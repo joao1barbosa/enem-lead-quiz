@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+  id           String        @id @default(uuid())
+  order        Int           @unique
+  text         String
+  alternatives Alternative[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Alternative {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  score      Int
+  createdAt  DateTime @default(now())
+}
+
+model Lead {
+  id                String       @id @default(uuid())
+  name              String
+  email             String       @unique
+  phone             String
+  score             Int
+  diagnosticSlug    String
+  diagnosticTitle   String
+  diagnosticMessage String
+  createdAt         DateTime     @default(now())
+  answers           LeadAnswer[]
+}
+
+model LeadAnswer {
+  id              String @id @default(uuid())
+  leadId          String
+  lead            Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  questionId      String
+  questionText    String
+  alternativeId   String
+  alternativeText String
+  score           Int
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
