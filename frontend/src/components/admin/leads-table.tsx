@@ -56,7 +56,7 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   <TableCell className="px-4 py-3">{lead.phone}</TableCell>
                   <TableCell className="px-4 py-3">{lead.score}</TableCell>
                   <TableCell className="px-4 py-3">
-                    <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100 text-gray-800'}>
+                    <Badge variant="outline" className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100 text-gray-800 border-gray-300'}>
                       {lead.diagnosticTitle}
                     </Badge>
                   </TableCell>
