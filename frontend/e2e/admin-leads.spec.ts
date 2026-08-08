@@ -155,9 +155,9 @@ test.describe('Admin Leads', () => {
 
     // Seções do modal (US-07)
     await expect(page.getByRole('heading', { name: 'Detalhes do Lead' })).toBeVisible();
-    await expect(page.getByText('Informações de Contato')).toBeVisible();
-    await expect(page.getByText('Resultado')).toBeVisible();
-    await expect(page.getByText('Respostas')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Informações de Contato' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Resultado' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Respostas' })).toBeVisible();
   });
 
   test('should close lead details modal', async ({ page }) => {

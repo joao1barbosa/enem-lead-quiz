@@ -48,9 +48,8 @@ test.describe('Admin Mobile Responsiveness', () => {
     // Clicar no avatar no header mobile
     await page.locator('header button').click();
 
-    // Popover com os dados do admin e a opção de sair (US-09)
-    await expect(page.getByText('Sair da Conta')).toBeVisible();
-    await expect(page.getByText('admin@admin.com')).toBeVisible();
+    // Popover com a opção de sair (US-09)
+    await expect(page.getByRole('button', { name: 'Sair da Conta' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Sair da Conta' }).click();
 

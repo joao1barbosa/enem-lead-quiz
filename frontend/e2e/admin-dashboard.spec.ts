@@ -28,7 +28,8 @@ test.describe('Admin Dashboard', () => {
     ).toBeVisible();
 
     // O ResponsiveContainer do Recharts monta a área do gráfico
-    await expect(page.locator('.recharts-responsive-container')).toBeVisible();
+    // Usa .first() porque há 2 gráficos na página (donut + area)
+    await expect(page.locator('.recharts-responsive-container').first()).toBeVisible();
   });
 
   test('should display leads area chart', async ({ page }) => {
@@ -36,6 +37,7 @@ test.describe('Admin Dashboard', () => {
       page.getByRole('heading', { name: 'Leads por Dia (Últimos 30 dias)' }),
     ).toBeVisible();
 
-    await expect(page.locator('.recharts-responsive-container')).toBeVisible();
+    // Usa .nth(1) para selecionar o segundo gráfico (area chart)
+    await expect(page.locator('.recharts-responsive-container').nth(1)).toBeVisible();
   });
 });

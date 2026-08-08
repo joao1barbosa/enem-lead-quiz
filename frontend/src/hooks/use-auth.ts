@@ -52,6 +52,13 @@ export const useAuth = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // Ao restaurar o estado do localStorage, também restaura o header
+      // Authorization para que as chamadas API funcionem após reload.
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
+        }
+      },
     }
   )
 );
