@@ -17,12 +17,18 @@ interface LeadsTableProps {
 /**
  * Tabela paginada de leads da visão operacional (RF-06, US-06).
  * Linhas clicáveis abrem o modal de detalhes (US-07).
+ * Altura fixa com diferenciação visual entre conteúdo e espaço vazio.
  */
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
+  const MAX_ROWS = 10;
+  const ROW_HEIGHT = 46; // px por linha (py-3 + conteúdo)
+  const HEADER_HEIGHT = 46; // px do header
+  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT; // 506px
+
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div className="min-h-[400px]">
+    <Card className="overflow-hidden" style={{ height: `${TABLE_HEIGHT}px` }}>
+      <CardContent className="p-0 h-full flex flex-col">
+        <div className="flex-1 flex flex-col">
           <Table data-testid="leads-table">
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-transparent">
@@ -53,6 +59,8 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
               ))}
             </TableBody>
           </Table>
+          {/* Espaço vazio com fundo diferenciado quando há menos de 10 registros */}
+          {leads.length < MAX_ROWS && <div className="bg-muted/20 flex-1" />}
         </div>
       </CardContent>
     </Card>
