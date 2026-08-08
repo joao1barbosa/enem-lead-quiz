@@ -43,4 +43,23 @@ test.describe('Quiz Flow - Complete Journey', () => {
     await expect(page.getByTestId('diagnostic-title')).toHaveText('Reta Final');
     await expect(page.getByText('Resumo das Respostas')).toBeVisible();
   });
+
+  test('should navigate between questions preserving answers', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
+
+    // Selecionar alternativa na pergunta 1
+    await page.getByTestId('alternative-0').click();
+
+    // Avançar para a pergunta 2
+    await page.getByTestId('next-button').click();
+    await expect(page.getByText('Pergunta 2 de 10')).toBeVisible();
+
+    // Voltar para a pergunta 1
+    await page.getByTestId('previous-button').click();
+    await expect(page.getByText('Pergunta 1 de 10')).toBeVisible();
+
+    // A alternativa selecionada anteriormente continua marcada
+    await expect(page.getByTestId('alternative-0')).toHaveClass(/bg-primary/);
+  });
 });
