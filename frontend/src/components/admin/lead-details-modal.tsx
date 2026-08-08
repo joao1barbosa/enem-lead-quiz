@@ -1,5 +1,13 @@
 import { X } from 'lucide-react';
 import { useLeadDetails } from '../../hooks/use-lead-details';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface LeadDetailsModalProps {
   leadId: string | null;
@@ -9,27 +17,41 @@ interface LeadDetailsModalProps {
 /**
  * Modal de detalhes do lead (RF-06, US-07). Exibe informações de contato,
  * resultado do diagnóstico e resumo das respostas do quiz.
+ *
+ * Baseado no Dialog do shadcn/ui (Radix), que fornece focus-trap,
+ * fechamento por ESC e role="dialog" nativos.
  */
 export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
   const { data, isLoading } = useLeadDetails(leadId);
 
   return (
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+    <Dialog
+      open={leadId !== null}
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
     >
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-        <button
-          onClick={onClose}
+      <DialogContent
+        data-testid="lead-details-modal"
+        hideCloseButton
+        overlayClassName="bg-black/50"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto p-6"
+      >
+        <DialogClose
           aria-label="Fechar"
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           <X className="w-5 h-5" />
-        </button>
+        </DialogClose>
 
-        <h2 className="text-xl font-bold mb-4">Detalhes do Lead</h2>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
+            Detalhes do Lead
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Informações de contato, resultado do diagnóstico e respostas do quiz.
+          </DialogDescription>
+        </DialogHeader>
 
         {isLoading && (
           <p className="text-center text-gray-500">Carregando detalhes...</p>
@@ -38,14 +60,24 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
         {data && (
           <div className="space-y-6">
             <section>
-              <h3 className="text-lg font-semibold mb-2">Informações de Contato</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Informações de Contato
+              </h3>
               <div className="space-y-1 text-sm">
-                <p><strong>Nome:</strong> {data.contactInfo.name}</p>
-                <p><strong>Email:</strong> {data.contactInfo.email}</p>
-                <p><strong>Telefone:</strong> {data.contactInfo.phone}</p>
+                <p>
+                  <strong>Nome:</strong> {data.contactInfo.name}
+                </p>
+                <p>
+                  <strong>Email:</strong> {data.contactInfo.email}
+                </p>
+                <p>
+                  <strong>Telefone:</strong> {data.contactInfo.phone}
+                </p>
                 <p>
                   <strong>Data de cadastro:</strong>{' '}
-                  {new Date(data.contactInfo.createdAt).toLocaleDateString('pt-BR')}
+                  {new Date(data.contactInfo.createdAt).toLocaleDateString(
+                    'pt-BR'
+                  )}
                 </p>
               </div>
             </section>
@@ -53,9 +85,15 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
             <section>
               <h3 className="text-lg font-semibold mb-2">Resultado</h3>
               <div className="space-y-1 text-sm">
-                <p><strong>Pontuação:</strong> {data.result.score}</p>
-                <p><strong>Faixa:</strong> {data.result.diagnosticTitle}</p>
-                <p><strong>Mensagem:</strong> {data.result.diagnosticMessage}</p>
+                <p>
+                  <strong>Pontuação:</strong> {data.result.score}
+                </p>
+                <p>
+                  <strong>Faixa:</strong> {data.result.diagnosticTitle}
+                </p>
+                <p>
+                  <strong>Mensagem:</strong> {data.result.diagnosticMessage}
+                </p>
               </div>
             </section>
 
@@ -75,7 +113,7 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
             </section>
           </div>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

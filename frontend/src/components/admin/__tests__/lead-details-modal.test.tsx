@@ -82,14 +82,46 @@ describe('LeadDetailsModal', () => {
   it('should call onClose when clicking the overlay outside the modal', async () => {
     vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
     const onClose = vi.fn();
-    const { container } = render(
-      <LeadDetailsModal leadId="lead-1" onClose={onClose} />,
-      { wrapper }
-    );
+    render(<LeadDetailsModal leadId="lead-1" onClose={onClose} />, { wrapper });
 
     await screen.findByText('Informações de Contato');
-    fireEvent.click(container.firstChild as Element);
+    // O Dialog do Radix renderiza via portal e fecha por pointer-down fora
+    // do conteúdo (o overlay é renderizado como irmão do conteúdo).
+    fireEvent.pointerDown(document.body);
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('should expose native dialog semantics (role and aria-labelledby)', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
+    render(<LeadDetailsModal leadId="lead-1" onClose={vi.fn()} />, { wrapper });
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-labelledby');
+
+    const titleId = dialog.getAttribute('aria-labelledby');
+    expect(screen.getByText('Detalhes do Lead').closest('h2')).toHaveAttribute(
+      'id',
+      titleId
+    );
+  });
+
+  it('should call onClose when pressing Escape', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
+    const onClose = vi.fn();
+    render(<LeadDetailsModal leadId="lead-1" onClose={onClose} />, { wrapper });
+
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('should focus the close button when opened', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
+    render(<LeadDetailsModal leadId="lead-1" onClose={vi.fn()} />, { wrapper });
+
+    await screen.findByText('Informações de Contato');
+    expect(screen.getByRole('button', { name: /fechar/i })).toHaveFocus();
   });
 });
