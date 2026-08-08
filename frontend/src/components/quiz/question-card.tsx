@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import type { Question } from '../../types/quiz';
 
 interface QuestionCardProps {
@@ -18,9 +19,10 @@ export function QuestionCard({
         {question.alternatives.map((alternative) => {
           const isSelected = selectedAnswer === alternative.id;
           return (
-            <button
+            <motion.button
               key={alternative.id}
               onClick={() => onSelectAnswer(question.id, alternative.id)}
+              whileTap={{ scale: 0.98 }}
               className={`w-full rounded-lg border-2 p-4 text-left transition-colors ${
                 isSelected
                   ? 'border-primary bg-primary text-primary-foreground'
@@ -28,7 +30,7 @@ export function QuestionCard({
               }`}
             >
               {alternative.text}
-            </button>
+            </motion.button>
           );
         })}
       </div>

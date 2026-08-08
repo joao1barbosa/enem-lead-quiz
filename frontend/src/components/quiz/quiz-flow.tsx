@@ -1,5 +1,6 @@
 import { useQuizStore } from '../../stores/quiz-store';
 import { QuestionCard } from './question-card';
+import { ProgressBar } from './progress-bar';
 
 export function QuizFlow() {
   const {
@@ -22,9 +23,10 @@ export function QuizFlow() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
-      <div className="text-center text-sm text-muted-foreground">
-        Pergunta {currentQuestionIndex + 1} de {quiz.questions.length}
-      </div>
+      <ProgressBar
+        current={currentQuestionIndex + 1}
+        total={quiz.questions.length}
+      />
 
       <QuestionCard
         question={currentQuestion}
