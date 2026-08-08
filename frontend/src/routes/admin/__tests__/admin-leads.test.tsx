@@ -91,8 +91,10 @@ describe('AdminLeads', () => {
       await screen.findByPlaceholderText('Buscar por nome ou email...')
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /exportar csv/i })).toBeInTheDocument();
-    expect(screen.getByText('João Silva')).toBeInTheDocument();
-    expect(screen.getByText('Mostrando 1-10 de 12 leads')).toBeInTheDocument();
+    expect(await screen.findByText('João Silva')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Mostrando 1-10 de 12 leads')
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /anterior/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /próxima/i })).toBeEnabled();
   });
