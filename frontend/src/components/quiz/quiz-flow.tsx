@@ -167,6 +167,7 @@ export function QuizFlow() {
 
       <div className="flex justify-between">
         <button
+          data-testid="previous-button"
           onClick={handlePrevious}
           disabled={isFirstQuestion}
           className="rounded-lg bg-secondary px-6 py-2 text-secondary-foreground disabled:opacity-50"
@@ -175,6 +176,7 @@ export function QuizFlow() {
         </button>
 
         <button
+          data-testid="next-button"
           onClick={handleNext}
           disabled={!selectedAnswer}
           className="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"

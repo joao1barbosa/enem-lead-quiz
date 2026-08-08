@@ -45,6 +45,7 @@ exports[`Visual regression > should snapshot QuestionCard initial render 1`] = `
     >
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-0"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -52,6 +53,7 @@ exports[`Visual regression > should snapshot QuestionCard initial render 1`] = `
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-1"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -59,6 +61,7 @@ exports[`Visual regression > should snapshot QuestionCard initial render 1`] = `
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-2"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -66,6 +69,7 @@ exports[`Visual regression > should snapshot QuestionCard initial render 1`] = `
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-3"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -92,6 +96,7 @@ exports[`Visual regression > should snapshot QuestionCard with selected answer 1
     >
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-0"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -99,6 +104,7 @@ exports[`Visual regression > should snapshot QuestionCard with selected answer 1
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-1"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -106,6 +112,7 @@ exports[`Visual regression > should snapshot QuestionCard with selected answer 1
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-primary bg-primary text-primary-foreground"
+        data-testid="alternative-2"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -113,6 +120,7 @@ exports[`Visual regression > should snapshot QuestionCard with selected answer 1
       </button>
       <button
         class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+        data-testid="alternative-3"
         style="opacity: 0; transform: translateX(-20px);"
         tabindex="0"
       >
@@ -172,6 +180,7 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
           >
             <button
               class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+              data-testid="alternative-0"
               style="opacity: 1; transform: none;"
               tabindex="0"
             >
@@ -179,6 +188,7 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
             </button>
             <button
               class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+              data-testid="alternative-1"
               style="opacity: 1; transform: none;"
               tabindex="0"
             >
@@ -186,6 +196,7 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
             </button>
             <button
               class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+              data-testid="alternative-2"
               style="opacity: 1; transform: none;"
               tabindex="0"
             >
@@ -193,6 +204,7 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
             </button>
             <button
               class="w-full rounded-lg border-2 p-4 text-left transition-colors border-border hover:border-primary"
+              data-testid="alternative-3"
               style="opacity: 1; transform: none;"
               tabindex="0"
             >
@@ -207,12 +219,14 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
     >
       <button
         class="rounded-lg bg-secondary px-6 py-2 text-secondary-foreground disabled:opacity-50"
+        data-testid="previous-button"
         disabled=""
       >
         Anterior
       </button>
       <button
         class="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"
+        data-testid="next-button"
         disabled=""
       >
         Ver Resultado

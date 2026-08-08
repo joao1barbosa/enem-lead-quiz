@@ -114,6 +114,7 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
 
       <button
         type="submit"
+        data-testid="submit-button"
         disabled={formSubmitting || submitting}
         className="w-full rounded-lg bg-primary px-6 py-3 text-primary-foreground font-semibold disabled:opacity-50"
       >
