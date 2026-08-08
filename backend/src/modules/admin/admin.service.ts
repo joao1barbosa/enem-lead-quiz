@@ -16,6 +16,7 @@ export interface DailyLeads {
 
 export interface AdminDashboardResponse {
   totalLeads: number;
+  qualifiedLeads: number;
   averageScore: number;
   distributionByDiagnostic: DiagnosticDistribution[];
   dailyLeads: DailyLeads[];
@@ -74,21 +75,28 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getDashboard(): Promise<AdminDashboardResponse> {
-    const [totalLeads, average, grouped, createdAtRows] = await Promise.all([
-      this.prisma.lead.count(),
-      this.prisma.lead.aggregate({ _avg: { score: true } }),
-      this.prisma.lead.groupBy({
-        by: ['diagnosticSlug'],
-        _count: { _all: true },
-      }),
-      this.prisma.lead.findMany({
-        select: { createdAt: true },
-        orderBy: { createdAt: 'asc' },
-      }),
-    ]);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 7);
+
+    const [totalLeads, qualifiedLeads, average, grouped, createdAtRows] =
+      await Promise.all([
+        this.prisma.lead.count(),
+        this.prisma.lead.count({ where: { score: { gt: 55 } } }),
+        this.prisma.lead.aggregate({ _avg: { score: true } }),
+        this.prisma.lead.groupBy({
+          by: ['diagnosticSlug'],
+          _count: { _all: true },
+        }),
+        this.prisma.lead.findMany({
+          where: { createdAt: { gte: startDate } },
+          select: { createdAt: true },
+          orderBy: { createdAt: 'asc' },
+        }),
+      ]);
 
     return {
       totalLeads,
+      qualifiedLeads,
       averageScore: average._avg.score ?? 0,
       distributionByDiagnostic: this.buildDistribution(grouped),
       dailyLeads: this.buildDailyLeads(createdAtRows),
@@ -110,20 +118,26 @@ export class AdminService {
     }));
   }
 
-  /** Agrega leads por dia (YYYY-MM-DD), ordenado cronologicamente. */
-  private buildDailyLeads(
-    rows: { createdAt: Date }[],
-  ): DailyLeads[] {
+  /** Agrega leads por dia (YYYY-MM-DD) nos últimos 7 dias, zerando dias vazios. */
+  private buildDailyLeads(rows: { createdAt: Date }[]): DailyLeads[] {
+    const today = new Date();
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (6 - i));
+      return date.toISOString().split('T')[0];
+    });
+    const last7DaysSet = new Set(last7Days);
+
     const counts = new Map<string, number>();
 
     for (const { createdAt } of rows) {
       const date = createdAt.toISOString().slice(0, 10);
-      counts.set(date, (counts.get(date) ?? 0) + 1);
+      if (last7DaysSet.has(date)) {
+        counts.set(date, (counts.get(date) ?? 0) + 1);
+      }
     }
 
-    return [...counts.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, count]) => ({ date, count }));
+    return last7Days.map((date) => ({ date, count: counts.get(date) ?? 0 }));
   }
 
   /** Lista paginada de leads com filtros opcionais (RF-05). */

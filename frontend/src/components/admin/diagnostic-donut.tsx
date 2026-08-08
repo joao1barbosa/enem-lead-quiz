@@ -29,25 +29,51 @@ export function DiagnosticDonut({ data }: DiagnosticDonutProps) {
   return (
     <div className="bg-white rounded-lg border p-6">
       <h3 className="text-lg font-semibold mb-4">Distribuição por Faixa</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={chartData}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={100}
-            paddingAngle={2}
-            dataKey="value"
-          >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="45%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={100}
+              paddingAngle={2}
+              dataKey="value"
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+              content={({ payload }) => {
+                const total = chartData.reduce((sum, d) => sum + d.value, 0);
+                return (
+                  <ul className="space-y-1">
+                    {payload?.map((entry, i) => {
+                      const item = chartData[i];
+                      const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+                      return (
+                        <li key={entry.value} className="flex items-center gap-2 text-sm">
+                          <span
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: entry.color }}
+                          />
+                          <span>{item.name} · {pct}%</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

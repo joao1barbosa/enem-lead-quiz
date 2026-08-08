@@ -1,4 +1,5 @@
 import { api } from './api';
+import { saveAs } from 'file-saver';
 
 interface ExportCsvParams {
   search?: string;
@@ -7,7 +8,7 @@ interface ExportCsvParams {
 
 /**
  * Exporta os leads filtrados (busca e faixa diagnóstica) em CSV (RF-07, US-06).
- * Baixa o arquivo `leads-<timestamp>.csv` via blob URL.
+ * Baixa o arquivo `enem-lead-quiz.csv` via file-saver.
  */
 export async function exportLeadsCsv({
   search = '',
@@ -18,14 +19,11 @@ export async function exportLeadsCsv({
     responseType: 'blob',
   });
 
-  const url = window.URL.createObjectURL(
-    new Blob([response.data], { type: 'text/csv' })
-  );
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `leads-${Date.now()}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  // Extrai o filename do header Content-Disposition
+  const contentDisposition = response.headers['content-disposition'];
+  const filenameMatch = contentDisposition?.match(/filename="?(.+?)"?$/);
+  const filename = filenameMatch?.[1] || 'enem-lead-quiz.csv';
+
+  const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+  saveAs(blob, filename);
 }

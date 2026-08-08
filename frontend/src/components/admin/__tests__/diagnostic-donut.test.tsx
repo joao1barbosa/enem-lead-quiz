@@ -16,13 +16,13 @@ describe('DiagnosticDonut', () => {
     expect(screen.getByText('Distribuição por Faixa')).toBeInTheDocument();
   });
 
-  it('should render all four diagnostic ranges in the legend', () => {
+  it('should render all four diagnostic ranges in the legend with percentages', () => {
     render(<DiagnosticDonut data={DATA} />);
 
-    expect(screen.getByText('Ponto de Partida')).toBeInTheDocument();
-    expect(screen.getByText('Em Construção')).toBeInTheDocument();
-    expect(screen.getByText('Na Trilha Certa')).toBeInTheDocument();
-    expect(screen.getByText('Reta Final')).toBeInTheDocument();
+    expect(screen.getByText('Ponto de Partida · 11.9%')).toBeInTheDocument();
+    expect(screen.getByText('Em Construção · 28.6%')).toBeInTheDocument();
+    expect(screen.getByText('Na Trilha Certa · 42.9%')).toBeInTheDocument();
+    expect(screen.getByText('Reta Final · 16.7%')).toBeInTheDocument();
   });
 
   it('should render when a faixa has zero leads', () => {
@@ -34,6 +34,7 @@ describe('DiagnosticDonut', () => {
     render(<DiagnosticDonut data={data} />);
 
     expect(screen.getByText('Distribuição por Faixa')).toBeInTheDocument();
-    expect(screen.getByText('Na Trilha Certa')).toBeInTheDocument();
+    expect(screen.getByText('Na Trilha Certa · 100.0%')).toBeInTheDocument();
+    expect(screen.getByText('Ponto de Partida · 0.0%')).toBeInTheDocument();
   });
 });

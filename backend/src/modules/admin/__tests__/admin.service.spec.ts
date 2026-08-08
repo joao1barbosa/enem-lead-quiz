@@ -49,6 +49,22 @@ describe('AdminService', () => {
       expect(dashboard.averageScore).toBe(62.5);
     });
 
+    it('should count qualified leads with score > 55', async () => {
+      prisma.lead.count
+        .mockResolvedValueOnce(10) // total leads
+        .mockResolvedValueOnce(4); // qualified leads
+      prisma.lead.aggregate.mockResolvedValue({ _avg: { score: 62.5 } });
+      prisma.lead.groupBy.mockResolvedValue([]);
+      prisma.lead.findMany.mockResolvedValue([]);
+
+      const dashboard = await service.getDashboard();
+
+      expect(dashboard.qualifiedLeads).toBe(4);
+      expect(prisma.lead.count).toHaveBeenCalledWith({
+        where: { score: { gt: 55 } },
+      });
+    });
+
     it('should include all diagnostic ranges, zero-filling missing ones', async () => {
       prisma.lead.count.mockResolvedValue(0);
       prisma.lead.aggregate.mockResolvedValue({ _avg: { score: null } });
@@ -71,22 +87,46 @@ describe('AdminService', () => {
       });
     });
 
-    it('should group daily leads by date ascending', async () => {
+    it('should return exactly 7 days with zero-filled empty days, ascending', async () => {
       prisma.lead.count.mockResolvedValue(0);
       prisma.lead.aggregate.mockResolvedValue({ _avg: { score: null } });
       prisma.lead.groupBy.mockResolvedValue([]);
+
+      const fmt = (d: Date) => d.toISOString().split('T')[0];
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const threeDaysAgo = new Date(today);
+      threeDaysAgo.setDate(today.getDate() - 3);
+
       prisma.lead.findMany.mockResolvedValue([
-        { createdAt: new Date('2026-08-02T10:00:00.000Z') },
-        { createdAt: new Date('2026-08-01T10:00:00.000Z') },
-        { createdAt: new Date('2026-08-01T11:00:00.000Z') },
+        { createdAt: new Date(threeDaysAgo) },
+        { createdAt: new Date(yesterday) },
+        { createdAt: new Date(yesterday) },
       ]);
 
       const dashboard = await service.getDashboard();
 
-      expect(dashboard.dailyLeads).toEqual([
-        { date: '2026-08-01', count: 2 },
-        { date: '2026-08-02', count: 1 },
-      ]);
+      expect(dashboard.dailyLeads).toHaveLength(7);
+      // Formato YYYY-MM-DD em todos os dias
+      for (const day of dashboard.dailyLeads) {
+        expect(day.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      }
+      // Ordenação ascendente
+      const dates = dashboard.dailyLeads.map((d) => d.date);
+      expect([...dates].sort()).toEqual(dates);
+      // Dias com leads têm contagem correta
+      const byDate = Object.fromEntries(
+        dashboard.dailyLeads.map((d) => [d.date, d.count]),
+      );
+      expect(byDate[fmt(threeDaysAgo)]).toBe(1);
+      expect(byDate[fmt(yesterday)]).toBe(2);
+      // Dias sem leads têm count = 0
+      const emptyDays = dashboard.dailyLeads.filter((d) => d.count === 0);
+      expect(emptyDays).toHaveLength(5);
+      for (const day of emptyDays) {
+        expect(day.count).toBe(0);
+      }
     });
   });
 
