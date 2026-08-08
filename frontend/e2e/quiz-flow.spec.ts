@@ -17,10 +17,11 @@ test.describe('Quiz Flow - Complete Journey', () => {
     // Quiz carregado com 10 perguntas
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
 
-    // Responder as 10 perguntas selecionando a primeira alternativa
-    // (primeira alternativa de cada pergunta vale 10 pontos -> score 100)
+    // Responder as 10 perguntas selecionando a última alternativa
+    // (última alternativa de cada pergunta vale 10 pontos -> score 100)
     for (let i = 1; i <= 10; i++) {
-      await page.getByTestId('alternative-0').click();
+      // Selecionar a última alternativa disponível
+      await page.locator('[data-testid^="alternative-"]').last().click();
       await page.getByTestId('next-button').click();
 
       if (i < 10) {

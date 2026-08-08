@@ -24,7 +24,7 @@ export function MobileHeader() {
         </button>
 
         {showPopover && (
-          <div className="absolute right-0 top-12 w-64 bg-white border rounded-lg shadow-lg p-4">
+          <div className="absolute right-0 top-12 w-64 bg-white border rounded-lg shadow-lg p-4 z-50">
             <div className="flex items-center gap-3 mb-3 pb-3 border-b">
               <User className="w-5 h-5 text-gray-500" />
               <span className="text-sm font-medium truncate">{user?.email}</span>

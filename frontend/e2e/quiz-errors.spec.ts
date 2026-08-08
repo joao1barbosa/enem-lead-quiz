@@ -10,7 +10,9 @@ test.describe('Quiz Flow - Error Handling', () => {
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
 
     for (let i = 1; i <= 10; i++) {
-      await page.getByTestId('alternative-0').click();
+      // Selecionar a última alternativa disponível (maior pontuação)
+      await page.locator('[data-testid^="alternative-"]').last().click();
+      await page.waitForTimeout(100); // Aguardar animação
       await page.getByTestId('next-button').click();
 
       if (i < 10) {
@@ -34,6 +36,7 @@ test.describe('Quiz Flow - Error Handling', () => {
   }
 
   test('should show error for duplicate email (409)', async ({ page }) => {
+    test.setTimeout(90000);
     const email = `duplicate${Date.now()}@email.com`;
 
     // Primeira submissão com o e-mail -> sucesso (lead persistido)

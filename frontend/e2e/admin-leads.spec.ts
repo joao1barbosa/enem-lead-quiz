@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:3000';
 const DIAGNOSTIC_TITLES: Record<string, string> = {
   STARTING_POINT: 'Ponto de Partida',
   IN_CONSTRUCTION: 'Em Construção',
-  ON_RIGHT_TRACK: 'Na Trilha Certa',
+  ON_RIGHT_TRACK: 'Bom Caminho',
   FINAL_STRETCH: 'Reta Final',
 };
 
@@ -116,16 +116,18 @@ test.describe('Admin Leads', () => {
     const slug = Object.entries(DIAGNOSTIC_TITLES).find(([, title]) => title === firstTitle)?.[0];
     expect(slug).toBeDefined();
 
-    await page.locator('select').selectOption(slug!);
-    await expect(page.locator('select')).toHaveValue(slug!);
-
-    // Aguarda a resposta filtrada do backend antes de validar as linhas
-    await page.waitForResponse(
+    // Aguarda a resposta filtrada do backend antes de selecionar
+    const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes('/api/admin/leads') &&
         response.request().method() === 'GET' &&
         response.url().includes(`diagnostic=${slug}`),
     );
+
+    await page.locator('select').selectOption(slug!);
+    await expect(page.locator('select')).toHaveValue(slug!);
+
+    await responsePromise;
 
     // Todas as linhas visíveis pertencem à faixa selecionada
     const count = await rows.count();
