@@ -1,0 +1,51 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import { QuizFlow } from '../quiz-flow';
+import { QuestionCard } from '../question-card';
+import { ProgressBar } from '../progress-bar';
+import { useQuizStore } from '../../../stores/quiz-store';
+
+const mockQuestion = {
+  id: 'q1',
+  order: 1,
+  text: 'Qual é a capital do Brasil?',
+  alternatives: [
+    { id: 'a1', text: 'São Paulo' },
+    { id: 'a2', text: 'Rio de Janeiro' },
+    { id: 'a3', text: 'Brasília' },
+    { id: 'a4', text: 'Salvador' },
+  ],
+};
+
+const mockQuiz = {
+  id: 'test-quiz',
+  questions: [mockQuestion],
+};
+
+describe('Visual regression', () => {
+  it('should snapshot QuizFlow initial render', () => {
+    useQuizStore.getState().setQuiz(mockQuiz);
+
+    const { container } = render(<QuizFlow />);
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should snapshot QuestionCard initial render', () => {
+    const { container } = render(
+      <QuestionCard question={mockQuestion} selectedAnswer={null} onSelectAnswer={() => {}} />
+    );
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should snapshot QuestionCard with selected answer', () => {
+    const { container } = render(
+      <QuestionCard question={mockQuestion} selectedAnswer="a3" onSelectAnswer={() => {}} />
+    );
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should snapshot ProgressBar', () => {
+    const { container } = render(<ProgressBar current={3} total={10} />);
+    expect(container).toMatchSnapshot();
+  });
+});

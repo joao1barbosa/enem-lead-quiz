@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QuizFlow } from '../quiz-flow';
 import { useQuizStore } from '../../../stores/quiz-store';
 
@@ -39,30 +39,60 @@ describe('QuizFlow', () => {
     expect(screen.getByText('Pergunta 1')).toBeInTheDocument();
   });
 
-  it('should navigate to next question', () => {
+  it('should keep current question mounted during exit transition', () => {
     render(<QuizFlow />);
 
     fireEvent.click(screen.getByText('Alternativa 1'));
     fireEvent.click(screen.getByText('Próxima'));
 
-    expect(screen.getByText('Pergunta 2')).toBeInTheDocument();
-  });
-
-  it('should navigate to previous question', () => {
-    render(<QuizFlow />);
-
-    fireEvent.click(screen.getByText('Próxima'));
-    fireEvent.click(screen.getByText('Anterior'));
-
+    // With AnimatePresence mode="wait", the exiting question stays in the
+    // DOM while its exit animation plays.
     expect(screen.getByText('Pergunta 1')).toBeInTheDocument();
   });
 
-  it('should show selected answer when navigating back', () => {
+  it('should show next question after transition completes', async () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+  });
+
+  it('should navigate back to previous question', async () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.click(screen.getByText('Anterior'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 1')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+  });
+
+  it('should show selected answer when navigating back', async () => {
     render(<QuizFlow />);
 
     fireEvent.click(screen.getByText('Alternativa 2'));
     fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
     fireEvent.click(screen.getByText('Anterior'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 1')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
 
     const alternativa2Button = screen.getByText('Alternativa 2').closest('button');
     expect(alternativa2Button).toHaveClass('bg-primary');
