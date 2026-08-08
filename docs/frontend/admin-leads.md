@@ -64,7 +64,7 @@ Tabela com colunas Nome, Email, Telefone, Score, Faixa e Data (formato
 | Controle | Comportamento |
 | --- | --- |
 | Campo de busca | Placeholder "Buscar por nome ou email..."; `onSearchChange`. |
-| Select de faixa | Opções Todas / Starting Point / In Construction / On Right Track / Final Stretch. |
+| Select de faixa | Opções Todas / Ponto de Partida / Em Construção / Na Trilha Certa / Reta Final. |
 | Botão "Exportar CSV" | Chama `onExport` (verde, ícone Download). |
 
 ### `LeadDetailsModal` (RF-06, US-07)

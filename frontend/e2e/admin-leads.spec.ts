@@ -111,6 +111,14 @@ test.describe('Admin Leads', () => {
   test('should filter leads by diagnostic band', async ({ page }) => {
     const rows = page.locator('tbody tr');
 
+    // Rótulo da opção exibida no shadcn Select (frontend pt-BR) por slug
+    const SELECT_OPTION_LABELS: Record<string, string> = {
+      STARTING_POINT: 'Ponto de Partida',
+      IN_CONSTRUCTION: 'Em Construção',
+      ON_RIGHT_TRACK: 'Na Trilha Certa',
+      FINAL_STRETCH: 'Reta Final',
+    };
+
     // Pega a faixa do primeiro lead e seleciona o slug correspondente
     const firstTitle = (await rows.first().locator('td').nth(4).innerText()).trim();
     const slug = Object.entries(DIAGNOSTIC_TITLES).find(([, title]) => title === firstTitle)?.[0];
@@ -124,8 +132,10 @@ test.describe('Admin Leads', () => {
         response.url().includes(`diagnostic=${slug}`),
     );
 
-    await page.locator('select').selectOption(slug!);
-    await expect(page.locator('select')).toHaveValue(slug!);
+    // O shadcn Select (Radix) não usa <select> nativo: abre o menu e escolhe a opção visível
+    await page.getByRole('combobox').click();
+    await page.getByRole('option', { name: SELECT_OPTION_LABELS[slug!] }).click();
+    await expect(page.getByRole('combobox')).toContainText(SELECT_OPTION_LABELS[slug!]);
 
     await responsePromise;
 

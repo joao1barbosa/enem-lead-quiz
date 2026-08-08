@@ -10,6 +10,12 @@ const defaultProps = {
   onExport: vi.fn(),
 };
 
+/** Abre o Select (Radix) via teclado e clica em uma opção pelo texto visível. */
+async function selectOption(optionName: string) {
+  fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+  fireEvent.click(await screen.findByRole('option', { name: optionName }));
+}
+
 describe('LeadsToolbar', () => {
   it('should render search input, diagnostic select and export button', () => {
     render(<LeadsToolbar {...defaultProps} />);
@@ -33,7 +39,13 @@ describe('LeadsToolbar', () => {
     expect(screen.getByPlaceholderText('Buscar por nome ou email...')).toHaveValue(
       'joao'
     );
-    expect(screen.getByRole('combobox')).toHaveValue('ON_RIGHT_TRACK');
+    expect(screen.getByRole('combobox')).toHaveTextContent('Na Trilha Certa');
+  });
+
+  it('should show "Todas as faixas" when no diagnostic filter is set', () => {
+    render(<LeadsToolbar {...defaultProps} diagnostic="" />);
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Todas as faixas');
   });
 
   it('should call onSearchChange when typing', () => {
@@ -47,15 +59,28 @@ describe('LeadsToolbar', () => {
     expect(onSearchChange).toHaveBeenCalledWith('jo');
   });
 
-  it('should call onDiagnosticChange when selecting a faixa', () => {
+  it('should call onDiagnosticChange when selecting a faixa', async () => {
     const onDiagnosticChange = vi.fn();
     render(<LeadsToolbar {...defaultProps} onDiagnosticChange={onDiagnosticChange} />);
 
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'FINAL_STRETCH' },
-    });
+    await selectOption('Reta Final');
 
     expect(onDiagnosticChange).toHaveBeenCalledWith('FINAL_STRETCH');
+  });
+
+  it('should call onDiagnosticChange with empty value when resetting to "Todas as faixas"', async () => {
+    const onDiagnosticChange = vi.fn();
+    render(
+      <LeadsToolbar
+        {...defaultProps}
+        diagnostic="FINAL_STRETCH"
+        onDiagnosticChange={onDiagnosticChange}
+      />
+    );
+
+    await selectOption('Todas as faixas');
+
+    expect(onDiagnosticChange).toHaveBeenCalledWith('');
   });
 
   it('should call onExport when clicking the export button', () => {
