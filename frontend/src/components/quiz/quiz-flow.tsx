@@ -68,8 +68,14 @@ export function QuizFlow() {
         });
         setResult(submittedResult);
         setStage('result');
-      } catch {
-        setSubmitError('Erro ao enviar respostas. Tente novamente.');
+      } catch (err) {
+        const status = (err as { response?: { status?: number } })?.response
+          ?.status;
+        if (status === 409) {
+          setSubmitError('Este e-mail já realizou o quiz. Use um e-mail diferente.');
+        } else {
+          setSubmitError('Erro ao enviar respostas. Tente novamente.');
+        }
       }
     };
 

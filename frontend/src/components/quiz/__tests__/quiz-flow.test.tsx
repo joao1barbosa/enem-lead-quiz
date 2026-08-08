@@ -268,4 +268,45 @@ describe('QuizFlow', () => {
     expect(screen.getByText('75')).toBeInTheDocument();
     expect(screen.getByText('Resumo das Respostas')).toBeInTheDocument();
   });
+
+  it('should show friendly message when email is already registered (409)', async () => {
+    mockSubmitLead.mutateAsync.mockRejectedValue({
+      response: {
+        status: 409,
+        data: { message: 'Este e-mail já realizou o quiz.' },
+      },
+    });
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    fireEvent.click(screen.getByText('Alternativa 3'));
+    fireEvent.click(screen.getByText('Ver Resultado'));
+    await waitFor(
+      () => expect(screen.getByLabelText(/nome/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.change(screen.getByLabelText(/nome/i), {
+      target: { value: 'João Silva' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'joao@email.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/telefone/i), {
+      target: { value: '11999999999' },
+    });
+    fireEvent.click(screen.getByText(/ver resultado/i));
+
+    await waitFor(
+      () => expect(screen.getByText(/já realizou o quiz/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    expect(useQuizStore.getState().stage).toBe('form');
+    expect(useQuizStore.getState().result).toBeNull();
+  });
 });
