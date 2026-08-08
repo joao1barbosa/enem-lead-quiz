@@ -5,8 +5,16 @@ interface ProgressBarProps {
   total: number;
 }
 
+/**
+ * Calculates the progress percentage (0-100) for the current question.
+ * Rounded to avoid floating-point artifacts (e.g. 1/3 * 100 = 33.333...).
+ */
+export function getProgressPercentage(current: number, total: number): number {
+  return Math.round((current / total) * 100);
+}
+
 export function ProgressBar({ current, total }: ProgressBarProps) {
-  const percentage = (current / total) * 100;
+  const percentage = getProgressPercentage(current, total);
 
   return (
     <div className="space-y-2">
