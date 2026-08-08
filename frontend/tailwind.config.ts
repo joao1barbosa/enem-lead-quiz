@@ -47,6 +47,13 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        // Cores das faixas de diagnóstico (padronizadas com o gráfico donut)
+        diagnostic: {
+          starting: '#ef4444', // red-500 - Ponto de Partida
+          construction: '#f59e0b', // amber-500 - Em Construção
+          track: '#3b82f6', // blue-500 - Na Trilha Certa
+          stretch: '#10b981', // emerald-500 - Reta Final
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
