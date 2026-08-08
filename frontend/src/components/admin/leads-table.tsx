@@ -19,6 +19,15 @@ interface LeadsTableProps {
  * Linhas clicáveis abrem o modal de detalhes (US-07).
  * Altura fixa com diferenciação visual entre conteúdo e espaço vazio.
  */
+
+// Mapeamento de slug para cor do badge (padronizado com tailwind.config.ts)
+const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
+  STARTING_POINT: 'bg-diagnostic-starting text-white',
+  IN_CONSTRUCTION: 'bg-diagnostic-construction text-white',
+  ON_RIGHT_TRACK: 'bg-diagnostic-track text-white',
+  FINAL_STRETCH: 'bg-diagnostic-stretch text-white',
+};
+
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
   const MAX_ROWS = 10;
   const ROW_HEIGHT = 46; // px por linha (py-3 + conteúdo)
@@ -51,7 +60,15 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   <TableCell className="px-4 py-3 max-w-[240px] truncate">{lead.email}</TableCell>
                   <TableCell className="px-4 py-3">{lead.phone}</TableCell>
                   <TableCell className="px-4 py-3">{lead.score}</TableCell>
-                  <TableCell className="px-4 py-3">{lead.diagnosticTitle}</TableCell>
+                  <TableCell className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {lead.diagnosticTitle}
+                    </span>
+                  </TableCell>
                   <TableCell className="px-4 py-3">
                     {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
                   </TableCell>
