@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '../../stores/quiz-store';
 import { QuestionCard } from './question-card';
 import { ProgressBar } from './progress-bar';
-import { slideVariants } from './animation-variants';
+import { slideTransition, slideVariants } from './animation-variants';
 
 export function QuizFlow() {
   const {
@@ -52,10 +52,7 @@ export function QuizFlow() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{
-              x: { type: 'spring', stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
+            transition={slideTransition}
           >
             <QuestionCard
               question={currentQuestion}

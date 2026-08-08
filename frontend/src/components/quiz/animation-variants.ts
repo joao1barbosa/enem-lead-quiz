@@ -1,4 +1,13 @@
-import type { Variants } from 'framer-motion';
+import type { Transition, Variants } from 'framer-motion';
+
+/**
+ * Shared spring-based transition for question slides.
+ * Kept in one place so enter/exit animations stay in sync.
+ */
+export const slideTransition: Transition = {
+  x: { type: 'spring', stiffness: 300, damping: 30 },
+  opacity: { duration: 0.2 },
+};
 
 export const slideVariants: Variants = {
   enter: (direction: number) => ({
