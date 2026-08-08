@@ -14,6 +14,43 @@ interface LeadFormProps {
   onSubmit: (data: { name: string; email: string; phone: string }) => void;
 }
 
+interface FormFieldProps {
+  id: keyof LeadFormData;
+  label: string;
+  type?: 'text' | 'email' | 'tel';
+  placeholder?: string;
+  error?: string;
+  registration: ReturnType<ReturnType<typeof useForm<LeadFormData>>['register']>;
+}
+
+const inputClassName =
+  'mt-1 w-full rounded-lg border border-border p-3';
+
+function FormField({
+  id,
+  label,
+  type = 'text',
+  placeholder,
+  error,
+  registration,
+}: FormFieldProps) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium">
+        {label}
+      </label>
+      <input
+        {...registration}
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        className={inputClassName}
+      />
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
 export function LeadForm({ onSubmit }: LeadFormProps) {
   const {
     register,
@@ -33,51 +70,27 @@ export function LeadForm({ onSubmit }: LeadFormProps) {
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} noValidate className="space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium">
-          Nome
-        </label>
-        <input
-          {...register('name')}
-          id="name"
-          type="text"
-          className="mt-1 w-full rounded-lg border border-border p-3"
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">
-          Email
-        </label>
-        <input
-          {...register('email')}
-          id="email"
-          type="email"
-          className="mt-1 w-full rounded-lg border border-border p-3"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium">
-          Telefone
-        </label>
-        <input
-          {...register('phone')}
-          id="phone"
-          type="tel"
-          placeholder="11999999999"
-          className="mt-1 w-full rounded-lg border border-border p-3"
-        />
-        {errors.phone && (
-          <p className="mt-1 text-sm text-destructive">{errors.phone.message}</p>
-        )}
-      </div>
+      <FormField
+        id="name"
+        label="Nome"
+        error={errors.name?.message}
+        registration={register('name')}
+      />
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        error={errors.email?.message}
+        registration={register('email')}
+      />
+      <FormField
+        id="phone"
+        label="Telefone"
+        type="tel"
+        placeholder="11999999999"
+        error={errors.phone?.message}
+        registration={register('phone')}
+      />
 
       <button
         type="submit"
