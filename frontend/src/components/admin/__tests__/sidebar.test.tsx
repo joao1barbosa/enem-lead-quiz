@@ -50,7 +50,7 @@ describe('Sidebar', () => {
     );
 
     expect(screen.getByText('admin@admin.com')).toBeInTheDocument();
-    expect(screen.getByText('Sair')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument();
   });
 
   it('should call logout when clicking Sair', () => {
@@ -62,7 +62,7 @@ describe('Sidebar', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByText('Sair'));
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
     expect(logoutSpy).toHaveBeenCalled();
   });
 });

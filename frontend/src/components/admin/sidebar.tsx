@@ -52,7 +52,9 @@ export function Sidebar() {
         </div>
         <button
           onClick={logout}
-          className="bg-red-200/40 flex items-center gap-2 px-2 py-2 text-sm text-red-600 hover:bg-red-200/85 rounded-lg"
+          title="Sair"
+          aria-label="Sair"
+          className="bg-red-200/40 flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-200/85 rounded-lg"
         >
           <LogOut className="w-4 h-4" />
         </button>

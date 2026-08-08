@@ -29,7 +29,7 @@ describe('AdminLayout', () => {
   it('should render the Sidebar with logout button', () => {
     renderWithLayout('/admin/dashboard');
 
-    expect(screen.getByText('Sair')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument();
     expect(screen.getByText('admin@admin.com')).toBeInTheDocument();
   });
 
@@ -37,7 +37,10 @@ describe('AdminLayout', () => {
     renderWithLayout('/admin/dashboard');
 
     expect(screen.queryByText('Sair da Conta')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'A' }));
+    // O DropdownMenu (Radix) abre via teclado (Enter) — mesmo fluxo de a11y
+    fireEvent.keyDown(screen.getByRole('button', { name: /menu do usuário/i }), {
+      key: 'Enter',
+    });
     expect(screen.getByText('Sair da Conta')).toBeInTheDocument();
   });
 
