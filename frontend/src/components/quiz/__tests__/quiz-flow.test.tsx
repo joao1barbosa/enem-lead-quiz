@@ -129,4 +129,62 @@ describe('QuizFlow', () => {
     const previousButton = screen.getByText('Anterior');
     expect(previousButton).toBeEnabled();
   });
+
+  it('should show lead form after answering last question', async () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.click(screen.getByText('Alternativa 3'));
+    fireEvent.click(screen.getByText('Ver Resultado'));
+
+    await waitFor(
+      () => expect(screen.getByText(/preencha seus dados/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
+  });
+
+  it('should store lead data and move to result stage on form submit', async () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    fireEvent.click(screen.getByText('Alternativa 3'));
+    fireEvent.click(screen.getByText('Ver Resultado'));
+    await waitFor(
+      () => expect(screen.getByLabelText(/nome/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.change(screen.getByLabelText(/nome/i), {
+      target: { value: 'João Silva' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'joao@email.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/telefone/i), {
+      target: { value: '11999999999' },
+    });
+    fireEvent.click(screen.getByText(/ver resultado/i));
+
+    await waitFor(
+      () => expect(useQuizStore.getState().stage).toBe('result'),
+      { timeout: 2000 }
+    );
+    expect(useQuizStore.getState().leadData).toEqual({
+      name: 'João Silva',
+      email: 'joao@email.com',
+      phone: '11999999999',
+    });
+  });
 });
