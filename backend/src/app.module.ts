@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { validate } from './config/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
+import { QuizModule } from './modules/quiz/quiz.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -23,6 +24,7 @@ import { AppService } from './app.service';
       ],
     }),
     PrismaModule,
+    QuizModule,
   ],
   controllers: [AppController],
   providers: [AppService],
