@@ -8,8 +8,11 @@ test.describe('Quiz Flow - Complete Journey', () => {
   test('should complete entire quiz flow', async ({ page }) => {
     await page.goto('/');
 
-    // Estado de loading inicial (carregamento do quiz via API)
-    await expect(page.getByText('Carregando quiz...')).toBeVisible();
+    // Estado de loading inicial (transiente: o quiz pode carregar antes da
+    // asserção rodar, então toleramos qualquer um dos dois estados)
+    await expect(
+      page.getByText('Carregando quiz...').or(page.getByText('Pergunta 1 de 10')),
+    ).toBeVisible({ timeout: 10000 });
 
     // Quiz carregado com 10 perguntas
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });

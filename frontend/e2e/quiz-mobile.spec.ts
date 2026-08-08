@@ -6,8 +6,9 @@ import { test, expect } from '@playwright/test';
  */
 test.describe('Quiz Flow - Mobile Responsiveness', () => {
   test('should render and allow interaction on mobile', async ({ page }) => {
-    // Confirma que o teste está rodando em viewport mobile (Pixel 5)
-    expect(page.viewportSize()).toEqual({ width: 393, height: 851 });
+    // Confirma que o teste está rodando em viewport mobile
+    // (device descriptor "Pixel 5": 393x727)
+    expect(page.viewportSize()).toEqual({ width: 393, height: 727 });
 
     await page.goto('/');
 

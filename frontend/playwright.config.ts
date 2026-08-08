@@ -12,15 +12,22 @@ export default defineConfig({
   // Serializado para garantir determinismo: os testes compartilham o
   // estado do backend (leads persistidos + rate limiting).
   workers: 1,
+  // Fluxos longos (10 perguntas x 2 projetos) precisam de margem.
+  timeout: 60_000,
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
+    // Desativa animações de transform (Framer Motion respeita
+    // prefers-reduced-motion via MotionConfig) para cliques estáveis.
+    reducedMotion: 'reduce',
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // Spec específico de mobile roda apenas no projeto Mobile Chrome.
+      testIgnore: /quiz-mobile\.spec\.ts/,
     },
     {
       name: 'Mobile Chrome',
