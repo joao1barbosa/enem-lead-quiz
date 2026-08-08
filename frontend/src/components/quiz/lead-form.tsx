@@ -13,6 +13,8 @@ type LeadFormData = z.infer<typeof leadFormSchema>;
 
 interface LeadFormProps {
   onSubmit: (data: { name: string; email: string; phone: string }) => void;
+  /** Submissão pendente no backend (ex.: mutation React Query). */
+  isSubmitting?: boolean;
 }
 
 interface FormFieldProps {
@@ -52,11 +54,11 @@ function FormField({
   );
 }
 
-export function LeadForm({ onSubmit }: LeadFormProps) {
+export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting: formSubmitting },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadFormSchema),
   });
@@ -112,7 +114,7 @@ export function LeadForm({ onSubmit }: LeadFormProps) {
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={formSubmitting || submitting}
         className="w-full rounded-lg bg-primary px-6 py-3 text-primary-foreground font-semibold disabled:opacity-50"
       >
         Ver Resultado

@@ -119,6 +119,24 @@ describe('QuizStore', () => {
     });
   });
 
+  describe('setResult', () => {
+    it('should store result data', () => {
+      const mockResult = {
+        score: 75,
+        diagnosticSlug: 'ON_RIGHT_TRACK',
+        diagnosticTitle: 'Na Trilha Certa',
+        diagnosticMessage: 'Você está indo muito bem!',
+        answersSummary: [
+          { questionText: 'Pergunta 1', selectedOptionText: 'Alternativa 1' },
+        ],
+      };
+
+      useQuizStore.getState().setResult(mockResult);
+
+      expect(useQuizStore.getState().result).toEqual(mockResult);
+    });
+  });
+
   describe('reset', () => {
     it('should reset to initial state', () => {
       useQuizStore.getState().setStage('form');
@@ -128,6 +146,13 @@ describe('QuizStore', () => {
         email: 'joao@email.com',
         phone: '11999999999',
       });
+      useQuizStore.getState().setResult({
+        score: 75,
+        diagnosticSlug: 'ON_RIGHT_TRACK',
+        diagnosticTitle: 'Na Trilha Certa',
+        diagnosticMessage: 'Você está indo muito bem!',
+        answersSummary: [],
+      });
 
       useQuizStore.getState().reset();
 
@@ -135,6 +160,7 @@ describe('QuizStore', () => {
       expect(useQuizStore.getState().selectedAnswers).toEqual({});
       expect(useQuizStore.getState().currentQuestionIndex).toBe(0);
       expect(useQuizStore.getState().leadData).toBeNull();
+      expect(useQuizStore.getState().result).toBeNull();
     });
   });
 });

@@ -23,12 +23,24 @@ export interface LeadData {
   phone: string;
 }
 
+export interface LeadResult {
+  score: number;
+  diagnosticSlug: string;
+  diagnosticTitle: string;
+  diagnosticMessage: string;
+  answersSummary: Array<{
+    questionText: string;
+    selectedOptionText: string;
+  }>;
+}
+
 export interface QuizState {
   quiz: Quiz | null;
   currentQuestionIndex: number;
   selectedAnswers: Record<string, string>; // questionId -> alternativeId
   stage: QuizStage;
   leadData: LeadData | null;
+  result: LeadResult | null;
 }
 
 export interface QuizActions {
@@ -38,6 +50,7 @@ export interface QuizActions {
   previousQuestion: () => void;
   setStage: (stage: QuizStage) => void;
   setLeadData: (data: LeadData) => void;
+  setResult: (result: LeadResult) => void;
   reset: () => void;
 }
 

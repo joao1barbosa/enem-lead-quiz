@@ -1,7 +1,37 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QuizFlow } from '../quiz-flow';
 import { useQuizStore } from '../../../stores/quiz-store';
+import type { LeadResult } from '../../../types/quiz';
+
+const mockResult: LeadResult = {
+  score: 75,
+  diagnosticSlug: 'ON_RIGHT_TRACK',
+  diagnosticTitle: 'Na Trilha Certa',
+  diagnosticMessage: 'Você está indo muito bem!',
+  answersSummary: [
+    { questionText: 'Pergunta 1', selectedOptionText: 'Alternativa 1' },
+    { questionText: 'Pergunta 2', selectedOptionText: 'Alternativa 3' },
+  ],
+};
+
+const { mockUseQuiz, mockSubmitLead } = vi.hoisted(() => {
+  const mockUseQuiz: {
+    data: unknown;
+    isLoading: boolean;
+    error: Error | null;
+  } = { data: undefined, isLoading: false, error: null };
+  const mockSubmitLead = { mutateAsync: vi.fn(), isPending: false };
+  return { mockUseQuiz, mockSubmitLead };
+});
+
+vi.mock('../../../hooks/use-quiz', () => ({
+  useQuiz: () => mockUseQuiz,
+}));
+
+vi.mock('../../../hooks/use-submit-lead', () => ({
+  useSubmitLead: () => mockSubmitLead,
+}));
 
 describe('QuizFlow', () => {
   const mockQuiz = {
@@ -29,6 +59,12 @@ describe('QuizFlow', () => {
   };
 
   beforeEach(() => {
+    mockUseQuiz.data = undefined;
+    mockUseQuiz.isLoading = false;
+    mockUseQuiz.error = null;
+    mockSubmitLead.mutateAsync.mockReset();
+    mockSubmitLead.mutateAsync.mockResolvedValue(mockResult);
+    mockSubmitLead.isPending = false;
     useQuizStore.getState().reset();
     useQuizStore.getState().setQuiz(mockQuiz);
   });
@@ -150,7 +186,7 @@ describe('QuizFlow', () => {
     expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
   });
 
-  it('should store lead data and move to result stage on form submit', async () => {
+  it('should submit answers to API and move to result stage on form submit', async () => {
     render(<QuizFlow />);
 
     fireEvent.click(screen.getByText('Alternativa 1'));
@@ -178,6 +214,20 @@ describe('QuizFlow', () => {
     fireEvent.click(screen.getByText(/ver resultado/i));
 
     await waitFor(
+      () => expect(mockSubmitLead.mutateAsync).toHaveBeenCalled(),
+      { timeout: 2000 }
+    );
+    expect(mockSubmitLead.mutateAsync).toHaveBeenCalledWith({
+      name: 'João Silva',
+      email: 'joao@email.com',
+      phone: '11999999999',
+      answers: [
+        { questionId: 'q1', alternativeId: 'a1' },
+        { questionId: 'q2', alternativeId: 'a3' },
+      ],
+    });
+
+    await waitFor(
       () => expect(useQuizStore.getState().stage).toBe('result'),
       { timeout: 2000 }
     );
@@ -186,5 +236,100 @@ describe('QuizFlow', () => {
       email: 'joao@email.com',
       phone: '11999999999',
     });
+    expect(useQuizStore.getState().result).toEqual(mockResult);
+  });
+
+  it('should render result page after successful submission', async () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    fireEvent.click(screen.getByText('Alternativa 3'));
+    fireEvent.click(screen.getByText('Ver Resultado'));
+    await waitFor(
+      () => expect(screen.getByLabelText(/nome/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.change(screen.getByLabelText(/nome/i), {
+      target: { value: 'João Silva' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'joao@email.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/telefone/i), {
+      target: { value: '11999999999' },
+    });
+    fireEvent.click(screen.getByText(/ver resultado/i));
+
+    await waitFor(
+      () => expect(screen.getByText('Na Trilha Certa')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    expect(screen.getByText('75')).toBeInTheDocument();
+    expect(screen.getByText('Resumo das Respostas')).toBeInTheDocument();
+  });
+
+  it('should show friendly message when email is already registered (409)', async () => {
+    mockSubmitLead.mutateAsync.mockRejectedValue({
+      response: {
+        status: 409,
+        data: { message: 'Este e-mail já realizou o quiz.' },
+      },
+    });
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+    await waitFor(
+      () => expect(screen.getByText('Pergunta 2')).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    fireEvent.click(screen.getByText('Alternativa 3'));
+    fireEvent.click(screen.getByText('Ver Resultado'));
+    await waitFor(
+      () => expect(screen.getByLabelText(/nome/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+
+    fireEvent.change(screen.getByLabelText(/nome/i), {
+      target: { value: 'João Silva' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'joao@email.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/telefone/i), {
+      target: { value: '11999999999' },
+    });
+    fireEvent.click(screen.getByText(/ver resultado/i));
+
+    await waitFor(
+      () => expect(screen.getByText(/já realizou o quiz/i)).toBeInTheDocument(),
+      { timeout: 2000 }
+    );
+    expect(useQuizStore.getState().stage).toBe('form');
+    expect(useQuizStore.getState().result).toBeNull();
+  });
+
+  it('should show loading state while the quiz is being fetched', () => {
+    mockUseQuiz.isLoading = true;
+    render(<QuizFlow />);
+
+    expect(screen.getByText('Carregando quiz...')).toBeInTheDocument();
+    expect(screen.getByText('Aguarde um momento')).toBeInTheDocument();
+  });
+
+  it('should show error state when the quiz fails to load', () => {
+    mockUseQuiz.error = new Error('Network error');
+    render(<QuizFlow />);
+
+    expect(screen.getByText('Erro')).toBeInTheDocument();
+    expect(
+      screen.getByText('Não foi possível carregar o quiz. Tente novamente.')
+    ).toBeInTheDocument();
   });
 });
