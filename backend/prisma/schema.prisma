@@ -11,6 +11,7 @@ model Question {
   id           String        @id @default(uuid())
   order        Int           @unique
   text         String
+  isActive     Boolean       @default(true)
   alternatives Alternative[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
