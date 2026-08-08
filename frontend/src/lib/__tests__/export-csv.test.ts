@@ -50,7 +50,7 @@ describe('exportLeadsCsv', () => {
 
     await exportLeadsCsv({ search: '', diagnostic: '' });
 
-    const blobArg = (saveAs as Mock).mock.calls[0][0] as Blob;
+    const blobArg = (saveAs as unknown as Mock).mock.calls[0][0] as Blob;
     expect(blobArg.type).toBe('text/csv;charset=utf-8;');
   });
 
