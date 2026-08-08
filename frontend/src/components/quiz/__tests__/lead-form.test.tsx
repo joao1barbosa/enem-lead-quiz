@@ -70,4 +70,35 @@ describe('LeadForm', () => {
       });
     });
   });
+
+  it('should have hidden honeypot field', () => {
+    render(<LeadForm onSubmit={vi.fn()} />);
+
+    const honeypot = screen.getByTestId('honeypot-field');
+    expect(honeypot).toBeInTheDocument();
+    expect(honeypot).toHaveStyle({ position: 'absolute', left: '-9999px' });
+  });
+
+  it('should not call onSubmit when honeypot is filled', async () => {
+    const onSubmit = vi.fn();
+    render(<LeadForm onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText(/nome/i), {
+      target: { value: 'João Silva' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'joao@email.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/telefone/i), {
+      target: { value: '11999999999' },
+    });
+    fireEvent.change(screen.getByTestId('honeypot-field'), {
+      target: { value: 'bot-payload' },
+    });
+    fireEvent.click(screen.getByText(/ver resultado/i));
+
+    await waitFor(() => {
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+  });
 });
