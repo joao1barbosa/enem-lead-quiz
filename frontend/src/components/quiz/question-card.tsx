@@ -28,6 +28,7 @@ export function QuestionCard({
           return (
             <motion.button
               key={alternative.id}
+              data-testid={`alternative-${index}`}
               onClick={() => onSelectAnswer(question.id, alternative.id)}
               whileTap={{ scale: 0.98 }}
               initial={{ opacity: 0, x: -20 }}

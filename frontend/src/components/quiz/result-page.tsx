@@ -19,8 +19,8 @@ export function ResultPage({ result }: ResultPageProps) {
       className="mx-auto max-w-2xl space-y-8 p-6"
     >
       <div className="space-y-4 text-center">
-        <div className="text-6xl font-bold text-primary">{result.score}</div>
-        <h2 className="text-3xl font-semibold">{result.diagnosticTitle}</h2>
+        <div data-testid="score" className="text-6xl font-bold text-primary">{result.score}</div>
+        <h2 data-testid="diagnostic-title" className="text-3xl font-semibold">{result.diagnosticTitle}</h2>
         <p className="text-lg text-muted-foreground">{result.diagnosticMessage}</p>
       </div>
 
