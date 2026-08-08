@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminDashboard } from '../admin-dashboard';
 import * as api from '../../../lib/api';
@@ -54,7 +54,8 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('Pontuação Média')).toBeInTheDocument();
     expect(screen.getByText('71.5')).toBeInTheDocument();
     expect(screen.getByText('Faixas Diagnósticas')).toBeInTheDocument();
-    expect(screen.getByText('4')).toBeInTheDocument();
+    const faixasCard = screen.getByText('Faixas Diagnósticas').closest('div')!.parentElement!;
+    expect(within(faixasCard).getByText('4')).toBeInTheDocument();
 
     // Gráficos
     expect(screen.getByText('Distribuição por Faixa')).toBeInTheDocument();
