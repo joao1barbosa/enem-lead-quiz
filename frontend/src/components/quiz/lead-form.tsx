@@ -6,6 +6,7 @@ const leadFormSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('Email inválido'),
   phone: z.string().regex(/^\d{10,11}$/, 'Telefone inválido (10-11 dígitos)'),
+  honeypot: z.string().optional(),
 });
 
 type LeadFormData = z.infer<typeof leadFormSchema>;
@@ -61,6 +62,11 @@ export function LeadForm({ onSubmit }: LeadFormProps) {
   });
 
   const handleFormSubmit = (data: LeadFormData) => {
+    // Honeypot preenchido = bot: descarta silenciosamente (RNF-01).
+    if (data.honeypot) {
+      return;
+    }
+
     onSubmit({
       name: data.name,
       email: data.email,
@@ -90,6 +96,18 @@ export function LeadForm({ onSubmit }: LeadFormProps) {
         placeholder="11999999999"
         error={errors.phone?.message}
         registration={register('phone')}
+      />
+
+      {/* Honeypot: invisível para humanos, detecta bots preenchendo (RNF-01) */}
+      <input
+        {...register('honeypot')}
+        type="text"
+        name="honeypot"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        data-testid="honeypot-field"
+        style={{ position: 'absolute', left: '-9999px' }}
       />
 
       <button
