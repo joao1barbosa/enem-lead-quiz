@@ -3,7 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { LeadDetailsModal } from '../lead-details-modal';
-import * as api from '../../lib/api';
+import * as api from '../../../lib/api';
 
 const DETAILS = {
   contactInfo: {
@@ -56,8 +56,9 @@ describe('LeadDetailsModal', () => {
 
     expect(screen.getByText('Respostas')).toBeInTheDocument();
     expect(screen.getByText('Como você estuda para o ENEM?')).toBeInTheDocument();
-    expect(screen.getByText('Sozinho')).toBeInTheDocument();
+    expect(screen.getByText(/Sozinho/)).toBeInTheDocument();
     expect(screen.getByText('Quantas horas por semana?')).toBeInTheDocument();
+    expect(screen.getByText(/5-10 horas/)).toBeInTheDocument();
   });
 
   it('should show loading state while fetching details', () => {
