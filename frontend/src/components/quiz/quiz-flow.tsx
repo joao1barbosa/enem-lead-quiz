@@ -1,6 +1,8 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '../../stores/quiz-store';
 import { QuestionCard } from './question-card';
 import { ProgressBar } from './progress-bar';
+import { slideVariants } from './animation-variants';
 
 export function QuizFlow() {
   const {
@@ -28,11 +30,27 @@ export function QuizFlow() {
         total={quiz.questions.length}
       />
 
-      <QuestionCard
-        question={currentQuestion}
-        selectedAnswer={selectedAnswer}
-        onSelectAnswer={selectAnswer}
-      />
+      <div className="relative overflow-hidden">
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={currentQuestion.id}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: 'spring', stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
+          >
+            <QuestionCard
+              question={currentQuestion}
+              selectedAnswer={selectedAnswer}
+              onSelectAnswer={selectAnswer}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       <div className="flex justify-between">
         <button
