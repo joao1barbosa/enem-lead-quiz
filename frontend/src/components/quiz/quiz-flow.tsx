@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '../../stores/quiz-store';
 import { QuestionCard } from './question-card';
@@ -14,6 +15,8 @@ export function QuizFlow() {
     selectAnswer,
   } = useQuizStore();
 
+  const [direction, setDirection] = useState(0);
+
   if (!quiz) {
     return <div>Carregando...</div>;
   }
@@ -23,6 +26,16 @@ export function QuizFlow() {
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1;
 
+  const handleNext = () => {
+    setDirection(1);
+    nextQuestion();
+  };
+
+  const handlePrevious = () => {
+    setDirection(-1);
+    previousQuestion();
+  };
+
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
       <ProgressBar
@@ -31,9 +44,10 @@ export function QuizFlow() {
       />
 
       <div className="relative overflow-hidden">
-        <AnimatePresence initial={false} mode="wait">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentQuestion.id}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
@@ -54,7 +68,7 @@ export function QuizFlow() {
 
       <div className="flex justify-between">
         <button
-          onClick={previousQuestion}
+          onClick={handlePrevious}
           disabled={isFirstQuestion}
           className="rounded-lg bg-secondary px-6 py-2 text-secondary-foreground disabled:opacity-50"
         >
@@ -62,7 +76,7 @@ export function QuizFlow() {
         </button>
 
         <button
-          onClick={nextQuestion}
+          onClick={handleNext}
           disabled={isLastQuestion || !selectedAnswer}
           className="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"
         >
