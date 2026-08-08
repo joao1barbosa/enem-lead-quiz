@@ -40,6 +40,7 @@ export interface QuizState {
   selectedAnswers: Record<string, string>; // questionId -> alternativeId
   stage: QuizStage;
   leadData: LeadData | null;
+  result: LeadResult | null;
 }
 
 export interface QuizActions {
@@ -49,6 +50,7 @@ export interface QuizActions {
   previousQuestion: () => void;
   setStage: (stage: QuizStage) => void;
   setLeadData: (data: LeadData) => void;
+  setResult: (result: LeadResult) => void;
   reset: () => void;
 }
 

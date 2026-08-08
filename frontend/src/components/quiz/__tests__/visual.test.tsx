@@ -1,9 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { QuizFlow } from '../quiz-flow';
 import { QuestionCard } from '../question-card';
 import { ProgressBar } from '../progress-bar';
 import { useQuizStore } from '../../../stores/quiz-store';
+
+const { mockUseQuiz, mockSubmitLead } = vi.hoisted(() => ({
+  mockUseQuiz: { data: undefined, isLoading: false, error: null },
+  mockSubmitLead: { mutateAsync: vi.fn(), isPending: false },
+}));
+
+vi.mock('../../../hooks/use-quiz', () => ({
+  useQuiz: () => mockUseQuiz,
+}));
+
+vi.mock('../../../hooks/use-submit-lead', () => ({
+  useSubmitLead: () => mockSubmitLead,
+}));
 
 const mockQuestion = {
   id: 'q1',

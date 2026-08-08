@@ -7,6 +7,7 @@ const initialQuizState: QuizState = {
   selectedAnswers: {},
   stage: 'quiz',
   leadData: null,
+  result: null,
 };
 
 export const useQuizStore = create<QuizStore>((set) => ({
@@ -39,6 +40,8 @@ export const useQuizStore = create<QuizStore>((set) => ({
   setStage: (stage) => set({ stage }),
 
   setLeadData: (leadData) => set({ leadData }),
+
+  setResult: (result) => set({ result }),
 
   reset: () => set({ ...initialQuizState }),
 }));
