@@ -147,9 +147,10 @@ describe('AdminLeads', () => {
     fireEvent.change(screen.getByPlaceholderText('Buscar por nome ou email...'), {
       target: { value: 'ana' },
     });
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'STARTING_POINT' },
-    });
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+    fireEvent.click(
+      await screen.findByRole('option', { name: 'Ponto de Partida' })
+    );
     fireEvent.click(screen.getByRole('button', { name: /exportar csv/i }));
 
     await waitFor(() => {
