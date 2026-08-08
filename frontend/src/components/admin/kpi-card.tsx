@@ -1,4 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from '@/components/ui/card';
 
 interface KpiCardProps {
   title: string;
@@ -9,18 +16,24 @@ interface KpiCardProps {
 
 /**
  * Card de indicador (KPI) do dashboard administrativo (RF-05, US-05).
+ * Construído com o componente Card do shadcn/ui e tokens semânticos
+ * (bg-card, text-card-foreground, border-border, text-muted-foreground).
  */
 export function KpiCard({ title, value, icon: Icon, description }: KpiCardProps) {
   return (
-    <div className="bg-white rounded-lg border p-6">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-        <Icon className="w-5 h-5 text-gray-400" />
-      </div>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
-      {description && (
-        <p className="text-sm text-gray-500 mt-1">{description}</p>
-      )}
-    </div>
+    <Card className="rounded-lg">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <Icon className="w-5 h-5 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold text-card-foreground">{value}</div>
+        {description && (
+          <CardDescription className="mt-1">{description}</CardDescription>
+        )}
+      </CardContent>
+    </Card>
   );
 }
