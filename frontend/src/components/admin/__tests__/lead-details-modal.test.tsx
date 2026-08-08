@@ -44,7 +44,7 @@ describe('LeadDetailsModal', () => {
     expect(await screen.findByText('Informações de Contato')).toBeInTheDocument();
     expect(screen.getByText('João Silva')).toBeInTheDocument();
     expect(screen.getByText('joao@email.com')).toBeInTheDocument();
-    expect(screen.getByText('11999999999')).toBeInTheDocument();
+    expect(screen.getByText('(11) 99999-9999')).toBeInTheDocument();
     expect(screen.getByText('05/08/2026')).toBeInTheDocument();
 
     expect(screen.getByText('Resultado')).toBeInTheDocument();

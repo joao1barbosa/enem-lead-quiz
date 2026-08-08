@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatPhone } from '@/lib/format-phone';
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -53,8 +54,8 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                 >
                   <TableCell className="px-4 py-3">{lead.name}</TableCell>
                   <TableCell className="px-4 py-3 max-w-[240px] truncate">{lead.email}</TableCell>
-                  <TableCell className="px-4 py-3">{lead.phone}</TableCell>
-                  <TableCell className="px-4 py-3">{lead.score}</TableCell>
+                  <TableCell className="px-4 py-3">{formatPhone(lead.phone)}</TableCell>
+                  <TableCell className="px-4 py-3 text-center">{lead.score}</TableCell>
                   <TableCell className="px-4 py-3 flex justify-center">
                     <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100/80 text-gray-800 border-gray-300 rounded-full'}>
                       {lead.diagnosticTitle}

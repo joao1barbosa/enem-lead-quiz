@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { formatPhone } from '@/lib/format-phone';
 
 interface LeadDetailsModalProps {
   leadId: string | null;
@@ -71,7 +72,7 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
                   <strong>Email:</strong> {data.contactInfo.email}
                 </p>
                 <p>
-                  <strong>Telefone:</strong> {data.contactInfo.phone}
+                  <strong>Telefone:</strong> {formatPhone(data.contactInfo.phone)}
                 </p>
                 <p>
                   <strong>Data de cadastro:</strong>{' '}
