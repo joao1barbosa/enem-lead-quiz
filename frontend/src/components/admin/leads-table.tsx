@@ -17,17 +17,17 @@ interface LeadsTableProps {
 
 // Mapeamento de slug para classes do badge (usando cores do tailwind.config.ts)
 const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
-  STARTING_POINT: 'bg-diagnostic-starting text-white border-diagnostic-starting',
-  IN_CONSTRUCTION: 'bg-diagnostic-construction text-white border-diagnostic-construction',
-  ON_RIGHT_TRACK: 'bg-diagnostic-track text-white border-diagnostic-track',
-  FINAL_STRETCH: 'bg-diagnostic-stretch text-white border-diagnostic-stretch',
+  STARTING_POINT: 'bg-diagnostic-starting/80 text-white border-diagnostic-starting rounded-full hover:bg-diagnostic-starting/80',
+  IN_CONSTRUCTION: 'bg-diagnostic-construction/80 text-white border-diagnostic-construction rounded-full hover:bg-diagnostic-construction/80',
+  ON_RIGHT_TRACK: 'bg-diagnostic-track/80 text-white border-diagnostic-track rounded-full hover:bg-diagnostic-track/80',
+  FINAL_STRETCH: 'bg-diagnostic-stretch/80 text-white border-diagnostic-stretch rounded-full hover:bg-diagnostic-stretch/80',
 };
 
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
   const MAX_ROWS = 10;
-  const ROW_HEIGHT = 46; // px por linha (py-3 + conteúdo)
+  const ROW_HEIGHT = 50; // px por linha (py-3 + conteúdo)
   const HEADER_HEIGHT = 46; // px do header
-  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT; // 506px
+  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT; // 546px
 
   return (
     <Card className="overflow-hidden" style={{ height: `${TABLE_HEIGHT}px` }}>
@@ -55,8 +55,8 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   <TableCell className="px-4 py-3 max-w-[240px] truncate">{lead.email}</TableCell>
                   <TableCell className="px-4 py-3">{lead.phone}</TableCell>
                   <TableCell className="px-4 py-3">{lead.score}</TableCell>
-                  <TableCell className="px-4 py-3">
-                    <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100 text-gray-800 border-gray-300'}>
+                  <TableCell className="px-4 py-3 flex justify-center">
+                    <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100/80 text-gray-800 border-gray-300 rounded-full'}>
                       {lead.diagnosticTitle}
                     </Badge>
                   </TableCell>
