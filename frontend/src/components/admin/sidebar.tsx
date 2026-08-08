@@ -1,6 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/use-auth';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const menuItems = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -50,14 +56,22 @@ export function Sidebar() {
             <p className="text-sm font-medium truncate">{user?.email}</p>
           </div>
         </div>
-        <button
-          onClick={logout}
-          title="Sair"
-          aria-label="Sair"
-          className="bg-red-200/40 flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-200/85 rounded-lg"
-        >
-          <LogOut className="w-4 h-4" />
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={logout}
+                aria-label="Sair"
+                className="bg-red-200/40 flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-200/85 rounded-lg"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="bg-white text-gray-900 border">
+              <p>Sair</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </aside>
   );
