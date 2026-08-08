@@ -5,6 +5,8 @@ import { validate } from './config/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { LeadModule } from './modules/lead/lead.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -27,6 +29,8 @@ import { AppService } from './app.service';
     PrismaModule,
     QuizModule,
     LeadModule,
+    AuthModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
