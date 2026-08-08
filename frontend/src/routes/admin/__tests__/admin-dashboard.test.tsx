@@ -55,13 +55,14 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('Pontuação Média')).toBeInTheDocument();
     expect(screen.getByText('71.5')).toBeInTheDocument();
     expect(screen.getByText('Leads Qualificados')).toBeInTheDocument();
-    const qualifiedCard = screen.getByText('Leads Qualificados').closest('div')!.parentElement!;
+    // CardTitle (shadcn) é um <div>: sobe um nível extra até o Card raiz
+    const qualifiedCard = screen.getByText('Leads Qualificados').closest('div')!.parentElement!.parentElement!;
     expect(within(qualifiedCard).getByText('28')).toBeInTheDocument();
     expect(within(qualifiedCard).getByText('Leads com pontuação > 55')).toBeInTheDocument();
 
     // Gráficos
     expect(screen.getByText('Distribuição por Faixa')).toBeInTheDocument();
-    expect(screen.getByText('Leads (Últimos 7 dias)')).toBeInTheDocument();
+    expect(screen.getByText('Leads por Dia')).toBeInTheDocument();
 
     expect(api.api.get).toHaveBeenCalledWith('/api/admin/dashboard');
   });

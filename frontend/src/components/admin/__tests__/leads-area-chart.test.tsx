@@ -12,7 +12,8 @@ describe('LeadsAreaChart', () => {
   it('should render the heading', () => {
     render(<LeadsAreaChart data={DATA} />);
 
-    expect(screen.getByText('Leads (Últimos 7 dias)')).toBeInTheDocument();
+    expect(screen.getByText('Leads por Dia')).toBeInTheDocument();
+    expect(screen.getByText('Últimos 7 dias')).toBeInTheDocument();
   });
 
   it('should format dates as dd/MM on the x-axis', () => {

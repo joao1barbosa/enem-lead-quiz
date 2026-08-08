@@ -1,4 +1,11 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
 
 interface LeadsAreaChartProps {
   data: Array<{
@@ -19,6 +26,7 @@ function formatDayMonth(date: string): string {
 
 /**
  * Gráfico de área com a evolução diária de leads (últimos 7 dias) (RF-05, US-05).
+ * Usa o Card do shadcn/ui e altura responsiva (250px mobile, 300px desktop).
  */
 export function LeadsAreaChart({ data }: LeadsAreaChartProps) {
   const formattedData = data.map((item) => ({
@@ -27,23 +35,30 @@ export function LeadsAreaChart({ data }: LeadsAreaChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-lg border p-6">
-      <h3 className="text-lg font-semibold mb-4">Leads (Últimos 7 dias)</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={formattedData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" interval={0} />
-          <YAxis />
-          <Tooltip />
-          <Area
-            type="monotone"
-            dataKey="count"
-            stroke="#3b82f6"
-            fill="#3b82f6"
-            fillOpacity={0.2}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+    <Card className="rounded-lg">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Leads por Dia</CardTitle>
+        <CardDescription>Últimos 7 dias</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[250px] w-full sm:h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={formattedData}  margin={{ left: -6, right: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" interval="preserveStartEnd" minTickGap={8} />
+              <YAxis width={30} />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="count"
+                stroke="#3b82f6"
+                fill="#3b82f6"
+                fillOpacity={0.2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
