@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QuizFlow } from '../quiz-flow';
-import { useQuizStore } from '../../stores/quiz-store';
+import { useQuizStore } from '../../../stores/quiz-store';
 
 describe('QuizFlow', () => {
   const mockQuiz = {
