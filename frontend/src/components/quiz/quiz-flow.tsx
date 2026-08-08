@@ -113,7 +113,7 @@ export function QuizFlow() {
         </div>
         <LeadForm onSubmit={handleFormSubmit} isSubmitting={submitLead.isPending} />
         {submitError && (
-          <p className="text-center text-sm text-destructive">{submitError}</p>
+          <p className="text-center text-sm text-destructive text-red-700">{submitError}</p>
         )}
       </div>
     );
