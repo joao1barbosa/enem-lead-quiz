@@ -103,16 +103,38 @@ describe('QuizStore', () => {
     });
   });
 
+  describe('setLeadData', () => {
+    it('should store lead data', () => {
+      useQuizStore.getState().setLeadData({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        phone: '11999999999',
+      });
+
+      expect(useQuizStore.getState().leadData).toEqual({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        phone: '11999999999',
+      });
+    });
+  });
+
   describe('reset', () => {
     it('should reset to initial state', () => {
       useQuizStore.getState().setStage('form');
       useQuizStore.getState().selectAnswer('q1', 'a1');
+      useQuizStore.getState().setLeadData({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        phone: '11999999999',
+      });
 
       useQuizStore.getState().reset();
 
       expect(useQuizStore.getState().stage).toBe('quiz');
       expect(useQuizStore.getState().selectedAnswers).toEqual({});
       expect(useQuizStore.getState().currentQuestionIndex).toBe(0);
+      expect(useQuizStore.getState().leadData).toBeNull();
     });
   });
 });
