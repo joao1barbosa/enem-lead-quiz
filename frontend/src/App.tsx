@@ -1,15 +1,26 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { QueryProvider } from './providers/query-provider';
-import { QuizFlow } from './components/quiz/quiz-flow';
+import { routes } from './routes';
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {routes.map((route) => (
+        <Route key={route.path} path={route.path} element={route.element}>
+          {route.children?.map((child) => (
+            <Route key={child.path} path={child.path} element={child.element} />
+          ))}
+        </Route>
+      ))}
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <QueryProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<QuizFlow />} />
-          <Route path="*" element={<QuizFlow />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </QueryProvider>
   );
