@@ -14,11 +14,12 @@ interface DiagnosticDonutProps {
   }>;
 }
 
-const COLORS = {
-  STARTING_POINT: '#ef4444', // red
-  IN_CONSTRUCTION: '#f59e0b', // amber
-  ON_RIGHT_TRACK: '#3b82f6', // blue
-  FINAL_STRETCH: '#10b981', // green
+// Cores das faixas de diagnóstico (padronizadas com tailwind.config.ts)
+const DIAGNOSTIC_COLORS: Record<string, string> = {
+  STARTING_POINT: '#ef4444', // diagnostic-starting (red-500)
+  IN_CONSTRUCTION: '#f59e0b', // diagnostic-construction (amber-500)
+  ON_RIGHT_TRACK: '#3b82f6', // diagnostic-track (blue-500)
+  FINAL_STRETCH: '#10b981', // diagnostic-stretch (emerald-500)
 };
 
 /**
@@ -33,7 +34,7 @@ export function DiagnosticDonut({ data }: DiagnosticDonutProps) {
   const chartData = data.map((item) => ({
     name: item.title,
     value: item.count,
-    color: COLORS[item.slug as keyof typeof COLORS] || '#6b7280',
+    color: DIAGNOSTIC_COLORS[item.slug] || '#6b7280',
   }));
 
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
