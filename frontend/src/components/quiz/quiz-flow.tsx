@@ -28,7 +28,7 @@ export function QuizFlow() {
   const [direction, setDirection] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { data: fetchedQuiz } = useQuiz();
+  const { data: fetchedQuiz, isLoading, error } = useQuiz();
   const submitLead = useSubmitLead();
 
   useEffect(() => {
@@ -36,6 +36,30 @@ export function QuizFlow() {
       setQuiz(fetchedQuiz);
     }
   }, [fetchedQuiz, setQuiz]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="space-y-4 text-center">
+          <div className="text-2xl font-semibold">Carregando quiz...</div>
+          <div className="text-muted-foreground">Aguarde um momento</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="space-y-4 text-center">
+          <div className="text-2xl font-semibold text-destructive">Erro</div>
+          <div className="text-muted-foreground">
+            Não foi possível carregar o quiz. Tente novamente.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!quiz) {
     return <div>Carregando...</div>;

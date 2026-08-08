@@ -15,10 +15,15 @@ const mockResult: LeadResult = {
   ],
 };
 
-const { mockUseQuiz, mockSubmitLead } = vi.hoisted(() => ({
-  mockUseQuiz: { data: undefined, isLoading: false, error: null },
-  mockSubmitLead: { mutateAsync: vi.fn(), isPending: false },
-}));
+const { mockUseQuiz, mockSubmitLead } = vi.hoisted(() => {
+  const mockUseQuiz: {
+    data: unknown;
+    isLoading: boolean;
+    error: Error | null;
+  } = { data: undefined, isLoading: false, error: null };
+  const mockSubmitLead = { mutateAsync: vi.fn(), isPending: false };
+  return { mockUseQuiz, mockSubmitLead };
+});
 
 vi.mock('../../../hooks/use-quiz', () => ({
   useQuiz: () => mockUseQuiz,
@@ -308,5 +313,23 @@ describe('QuizFlow', () => {
     );
     expect(useQuizStore.getState().stage).toBe('form');
     expect(useQuizStore.getState().result).toBeNull();
+  });
+
+  it('should show loading state while the quiz is being fetched', () => {
+    mockUseQuiz.isLoading = true;
+    render(<QuizFlow />);
+
+    expect(screen.getByText('Carregando quiz...')).toBeInTheDocument();
+    expect(screen.getByText('Aguarde um momento')).toBeInTheDocument();
+  });
+
+  it('should show error state when the quiz fails to load', () => {
+    mockUseQuiz.error = new Error('Network error');
+    render(<QuizFlow />);
+
+    expect(screen.getByText('Erro')).toBeInTheDocument();
+    expect(
+      screen.getByText('Não foi possível carregar o quiz. Tente novamente.')
+    ).toBeInTheDocument();
   });
 });
