@@ -17,11 +17,18 @@ export interface Quiz {
 
 export type QuizStage = 'quiz' | 'form' | 'result';
 
+export interface LeadData {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 export interface QuizState {
   quiz: Quiz | null;
   currentQuestionIndex: number;
   selectedAnswers: Record<string, string>; // questionId -> alternativeId
   stage: QuizStage;
+  leadData: LeadData | null;
 }
 
 export interface QuizActions {
@@ -30,6 +37,7 @@ export interface QuizActions {
   nextQuestion: () => void;
   previousQuestion: () => void;
   setStage: (stage: QuizStage) => void;
+  setLeadData: (data: LeadData) => void;
   reset: () => void;
 }
 

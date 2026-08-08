@@ -215,7 +215,7 @@ exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
         class="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"
         disabled=""
       >
-        Próxima
+        Ver Resultado
       </button>
     </div>
   </div>
