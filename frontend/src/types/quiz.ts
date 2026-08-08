@@ -23,6 +23,17 @@ export interface LeadData {
   phone: string;
 }
 
+export interface LeadResult {
+  score: number;
+  diagnosticSlug: string;
+  diagnosticTitle: string;
+  diagnosticMessage: string;
+  answersSummary: Array<{
+    questionText: string;
+    selectedOptionText: string;
+  }>;
+}
+
 export interface QuizState {
   quiz: Quiz | null;
   currentQuestionIndex: number;
