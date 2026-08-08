@@ -67,4 +67,36 @@ describe('QuizFlow', () => {
     const alternativa2Button = screen.getByText('Alternativa 2').closest('button');
     expect(alternativa2Button).toHaveClass('bg-primary');
   });
+
+  it('should disable next button when no answer is selected', () => {
+    render(<QuizFlow />);
+
+    const nextButton = screen.getByText('Próxima');
+    expect(nextButton).toBeDisabled();
+  });
+
+  it('should enable next button when answer is selected', () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    const nextButton = screen.getByText('Próxima');
+    expect(nextButton).toBeEnabled();
+  });
+
+  it('should disable previous button on first question', () => {
+    render(<QuizFlow />);
+
+    const previousButton = screen.getByText('Anterior');
+    expect(previousButton).toBeDisabled();
+  });
+
+  it('should enable previous button after navigating forward', () => {
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByText('Alternativa 1'));
+    fireEvent.click(screen.getByText('Próxima'));
+
+    const previousButton = screen.getByText('Anterior');
+    expect(previousButton).toBeEnabled();
+  });
 });
