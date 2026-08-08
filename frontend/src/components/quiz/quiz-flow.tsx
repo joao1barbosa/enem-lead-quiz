@@ -3,16 +3,20 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '../../stores/quiz-store';
 import { QuestionCard } from './question-card';
 import { ProgressBar } from './progress-bar';
+import { LeadForm } from './lead-form';
 import { slideTransition, slideVariants } from './animation-variants';
 
 export function QuizFlow() {
   const {
     quiz,
+    stage,
     currentQuestionIndex,
     selectedAnswers,
     nextQuestion,
     previousQuestion,
     selectAnswer,
+    setStage,
+    setLeadData,
   } = useQuizStore();
 
   const [direction, setDirection] = useState(0);
@@ -21,12 +25,35 @@ export function QuizFlow() {
     return <div>Carregando...</div>;
   }
 
+  if (stage === 'form') {
+    return (
+      <div className="mx-auto max-w-2xl space-y-8 p-6">
+        <div className="space-y-2">
+          <h2 className="text-center text-2xl font-semibold">Quase lá!</h2>
+          <p className="text-center text-muted-foreground">
+            Preencha seus dados para ver o resultado.
+          </p>
+        </div>
+        <LeadForm
+          onSubmit={(data) => {
+            setLeadData(data);
+            setStage('result');
+          }}
+        />
+      </div>
+    );
+  }
+
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const selectedAnswer = selectedAnswers[currentQuestion.id] || null;
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1;
 
   const handleNext = () => {
+    if (isLastQuestion) {
+      setStage('form');
+      return;
+    }
     setDirection(1);
     nextQuestion();
   };
@@ -74,10 +101,10 @@ export function QuizFlow() {
 
         <button
           onClick={handleNext}
-          disabled={isLastQuestion || !selectedAnswer}
+          disabled={!selectedAnswer}
           className="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"
         >
-          Próxima
+          {isLastQuestion ? 'Ver Resultado' : 'Próxima'}
         </button>
       </div>
     </div>
