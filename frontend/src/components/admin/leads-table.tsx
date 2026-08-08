@@ -8,24 +8,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface LeadsTableProps {
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
 }
 
-/**
- * Tabela paginada de leads da visão operacional (RF-06, US-06).
- * Linhas clicáveis abrem o modal de detalhes (US-07).
- * Altura fixa com diferenciação visual entre conteúdo e espaço vazio.
- */
-
-// Mapeamento de slug para cor do badge (padronizado com tailwind.config.ts)
-const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
-  STARTING_POINT: 'bg-diagnostic-starting text-white',
-  IN_CONSTRUCTION: 'bg-diagnostic-construction text-white',
-  ON_RIGHT_TRACK: 'bg-diagnostic-track text-white',
-  FINAL_STRETCH: 'bg-diagnostic-stretch text-white',
+// Mapeamento de slug para variante do badge (padronizado com tailwind.config.ts)
+const DIAGNOSTIC_BADGE_VARIANT: Record<string, 'diagnostic-starting' | 'diagnostic-construction' | 'diagnostic-track' | 'diagnostic-stretch'> = {
+  STARTING_POINT: 'diagnostic-starting',
+  IN_CONSTRUCTION: 'diagnostic-construction',
+  ON_RIGHT_TRACK: 'diagnostic-track',
+  FINAL_STRETCH: 'diagnostic-stretch',
 };
 
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
@@ -61,13 +56,9 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   <TableCell className="px-4 py-3">{lead.phone}</TableCell>
                   <TableCell className="px-4 py-3">{lead.score}</TableCell>
                   <TableCell className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
+                    <Badge variant={DIAGNOSTIC_BADGE_VARIANT[lead.diagnosticSlug] || 'outline'}>
                       {lead.diagnosticTitle}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
