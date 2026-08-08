@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { exportLeadsCsv } from '../export-csv';
 import * as api from '../api';
 
 describe('exportLeadsCsv', () => {
-  let createObjectURL: ReturnType<typeof vi.fn>;
-  let revokeObjectURL: ReturnType<typeof vi.fn>;
+  let createObjectURL: Mock;
+  let revokeObjectURL: Mock;
 
   beforeEach(() => {
     vi.restoreAllMocks();
