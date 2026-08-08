@@ -26,12 +26,14 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      // Spec específico de mobile roda apenas no projeto Mobile Chrome.
-      testIgnore: /quiz-mobile\.spec\.ts/,
+      // Specs específicos de mobile rodam apenas no projeto Mobile Chrome.
+      testIgnore: [/quiz-mobile\.spec\.ts/, /admin-mobile\.spec\.ts/],
     },
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+      // Spec de navegação por sidebar é exclusivo do desktop (≥1024px).
+      testIgnore: [/admin-navigation\.spec\.ts/],
     },
   ],
   webServer: {
