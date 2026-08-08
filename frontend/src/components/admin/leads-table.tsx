@@ -15,12 +15,12 @@ interface LeadsTableProps {
   onLeadClick: (lead: Lead) => void;
 }
 
-// Mapeamento de slug para classes do badge (padronizado com tailwind.config.ts)
+// Mapeamento de slug para classes do badge (cores padrão Tailwind)
 const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
-  STARTING_POINT: 'bg-[#ef4444] text-white',
-  IN_CONSTRUCTION: 'bg-[#f59e0b] text-white',
-  ON_RIGHT_TRACK: 'bg-[#3b82f6] text-white',
-  FINAL_STRETCH: 'bg-[#10b981] text-white',
+  STARTING_POINT: 'bg-red-500 text-white border-red-500',
+  IN_CONSTRUCTION: 'bg-amber-500 text-white border-amber-500',
+  ON_RIGHT_TRACK: 'bg-blue-500 text-white border-blue-500',
+  FINAL_STRETCH: 'bg-emerald-500 text-white border-emerald-500',
 };
 
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
