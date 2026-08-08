@@ -48,10 +48,11 @@ test.describe('Admin Mobile Responsiveness', () => {
     // Clicar no avatar no header mobile
     await page.locator('header button').click();
 
-    // Popover com a opção de sair (US-09)
-    await expect(page.getByRole('button', { name: 'Sair da Conta' })).toBeVisible();
+    // Popover com a opção de sair (US-09). O DropdownMenu (shadcn/Radix)
+    // renderiza os itens com role "menuitem", não "button".
+    await expect(page.getByRole('menuitem', { name: 'Sair da Conta' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Sair da Conta' }).click();
+    await page.getByRole('menuitem', { name: 'Sair da Conta' }).click();
 
     // Sessão encerrada e redirecionado para a página de login
     await expect(page).toHaveURL(/\/admin\/login/);

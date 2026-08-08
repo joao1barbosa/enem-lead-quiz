@@ -33,7 +33,10 @@ describe('MobileHeader', () => {
 
     expect(screen.queryByText('Sair da Conta')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /a/i }));
+    // O DropdownMenu (Radix) abre via teclado (Enter) — mesmo fluxo de a11y
+    fireEvent.keyDown(screen.getByRole('button', { name: /menu do usuário/i }), {
+      key: 'Enter',
+    });
 
     expect(screen.getByText('admin@admin.com')).toBeInTheDocument();
     expect(screen.getByText('Sair da Conta')).toBeInTheDocument();
@@ -48,7 +51,9 @@ describe('MobileHeader', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /a/i }));
+    fireEvent.keyDown(screen.getByRole('button', { name: /menu do usuário/i }), {
+      key: 'Enter',
+    });
     fireEvent.click(screen.getByText('Sair da Conta'));
 
     expect(logoutSpy).toHaveBeenCalled();
