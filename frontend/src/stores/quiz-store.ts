@@ -1,14 +1,16 @@
 import { create } from 'zustand';
-import type { QuizStore } from '../types/quiz';
+import type { QuizState, QuizStore } from '../types/quiz';
 
-export const useQuizStore = create<QuizStore>((set, get) => ({
-  // State
+const initialQuizState: QuizState = {
   quiz: null,
   currentQuestionIndex: 0,
   selectedAnswers: {},
   stage: 'quiz',
+};
 
-  // Actions
+export const useQuizStore = create<QuizStore>((set) => ({
+  ...initialQuizState,
+
   setQuiz: (quiz) => set({ quiz }),
 
   selectAnswer: (questionId, alternativeId) =>
@@ -23,23 +25,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set((state) => {
       if (!state.quiz) return state;
       const maxIndex = state.quiz.questions.length - 1;
-      const nextIndex = Math.min(state.currentQuestionIndex + 1, maxIndex);
-      return { currentQuestionIndex: nextIndex };
+      return {
+        currentQuestionIndex: Math.min(state.currentQuestionIndex + 1, maxIndex),
+      };
     }),
 
   previousQuestion: () =>
-    set((state) => {
-      const prevIndex = Math.max(state.currentQuestionIndex - 1, 0);
-      return { currentQuestionIndex: prevIndex };
-    }),
+    set((state) => ({
+      currentQuestionIndex: Math.max(state.currentQuestionIndex - 1, 0),
+    })),
 
   setStage: (stage) => set({ stage }),
 
-  reset: () =>
-    set({
-      quiz: null,
-      currentQuestionIndex: 0,
-      selectedAnswers: {},
-      stage: 'quiz',
-    }),
+  reset: () => set({ ...initialQuizState }),
 }));
