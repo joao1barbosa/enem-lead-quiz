@@ -37,7 +37,7 @@ describe('AdminLayout', () => {
     renderWithLayout('/admin/dashboard');
 
     expect(screen.queryByText('Sair da Conta')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /a/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'A' }));
     expect(screen.getByText('Sair da Conta')).toBeInTheDocument();
   });
 
