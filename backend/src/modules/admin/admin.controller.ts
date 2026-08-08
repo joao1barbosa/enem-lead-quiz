@@ -1,10 +1,13 @@
 import {
   Controller,
   Get,
+  Header,
   Param,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import {
   AdminDashboardResponse,
@@ -13,6 +16,7 @@ import {
   AdminLeadsListResponse,
   AdminService,
 } from './admin.service';
+import { CsvExportService } from './csv-export.service';
 
 /**
  * Rotas administrativas (RF-05, RF-06, RF-07).
@@ -21,7 +25,10 @@ import {
 @Controller('api/admin')
 @UseGuards(JwtAuthGuard)
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly csvExportService: CsvExportService,
+  ) {}
 
   /** KPIs e métricas do dashboard (RF-05). */
   @Get('dashboard')
@@ -44,6 +51,27 @@ export class AdminController {
       limit: limit ? parseInt(limit, 10) : undefined,
     };
     return this.adminService.getLeads(filter);
+  }
+
+  /** Exportação CSV de leads filtrados (RF-07). */
+  @Get('leads/export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  async exportLeads(
+    @Query('search') search?: string,
+    @Query('diagnostic') diagnostic?: string,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<string> {
+    const leads = await this.adminService.getLeadsForExport({
+      search,
+      diagnostic,
+    });
+    const csv = this.csvExportService.generate(leads);
+
+    res?.setHeader(
+      'Content-Disposition',
+      `attachment; filename="leads-${Date.now()}.csv"`,
+    );
+    return csv;
   }
 
   /** Detalhes de um lead (RF-06). */

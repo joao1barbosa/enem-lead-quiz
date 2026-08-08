@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DIAGNOSTICS } from '../scoring/diagnostic.enum';
+import { CsvLeadRow } from './csv-export.service';
 
 export interface DiagnosticDistribution {
   slug: string;
@@ -179,6 +180,23 @@ export class AdminService {
         score: answer.score,
       })),
     };
+  }
+
+  /** Todos os leads filtrados (sem paginação) para exportação CSV (RF-07). */
+  async getLeadsForExport(filter: AdminLeadsFilter): Promise<CsvLeadRow[]> {
+    const leads = await this.prisma.lead.findMany({
+      where: this.buildWhere(filter),
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return leads.map((lead) => ({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      diagnosticTitle: lead.diagnosticTitle,
+      score: lead.score,
+      createdAt: lead.createdAt,
+    }));
   }
 
   private buildWhere(filter: AdminLeadsFilter): {
