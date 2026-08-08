@@ -1,4 +1,4 @@
-import { Users, TrendingUp, Award } from 'lucide-react';
+import { Users, TrendingUp, Target } from 'lucide-react';
 import { useDashboard } from '../../hooks/use-dashboard';
 import { KpiCard } from '../../components/admin/kpi-card';
 import { DiagnosticDonut } from '../../components/admin/diagnostic-donut';
@@ -6,8 +6,8 @@ import { LeadsAreaChart } from '../../components/admin/leads-area-chart';
 
 /**
  * Página de Dashboard Executivo do painel administrativo (RF-05, US-05).
- * Exibe KPIs (total de leads, pontuação média, faixas ativas) e os gráficos
- * de distribuição por faixa (donut) e evolução diária de leads (área).
+ * Exibe KPIs (total de leads, pontuação média, leads qualificados) e os
+ * gráficos de distribuição por faixa (donut) e evolução diária de leads (área).
  */
 export function AdminDashboard() {
   const { data, isLoading, error } = useDashboard();
@@ -49,10 +49,10 @@ export function AdminDashboard() {
           description="Score médio dos leads"
         />
         <KpiCard
-          title="Faixas Diagnósticas"
-          value={data.distributionByDiagnostic.length}
-          icon={Award}
-          description="Categorias ativas"
+          title="Leads Qualificados"
+          value={data.qualifiedLeads}
+          icon={Target}
+          description="Leads com pontuação > 55"
         />
       </div>
 

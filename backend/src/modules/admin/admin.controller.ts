@@ -30,7 +30,7 @@ export class AdminController {
     private readonly csvExportService: CsvExportService,
   ) {}
 
-  /** KPIs e métricas do dashboard (RF-05). */
+  /** KPIs e métricas do dashboard (RF-05): total/qualificados, média, faixas e leads dos últimos 7 dias. */
   @Get('dashboard')
   getDashboard(): Promise<AdminDashboardResponse> {
     return this.adminService.getDashboard();
@@ -69,7 +69,7 @@ export class AdminController {
 
     res?.setHeader(
       'Content-Disposition',
-      `attachment; filename="leads-${Date.now()}.csv"`,
+      `attachment; filename="enem-lead-quiz.csv"`,
     );
     return csv;
   }

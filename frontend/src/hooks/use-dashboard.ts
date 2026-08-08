@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 
 export interface DashboardData {
   totalLeads: number;
+  qualifiedLeads: number;
   averageScore: number;
   distributionByDiagnostic: Array<{
     slug: string;

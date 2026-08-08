@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Dashboard executivo (US-05):
- * - KPIs: total de leads, pontuação média e faixas diagnósticas ativas
+ * - KPIs: total de leads, pontuação média e leads qualificados
  * - gráfico donut com a distribuição de leads por faixa
  * - gráfico de área com a evolução diária de novos leads
  */
@@ -19,7 +19,7 @@ test.describe('Admin Dashboard', () => {
   test('should display KPIs', async ({ page }) => {
     await expect(page.getByText('Total de Leads')).toBeVisible();
     await expect(page.getByText('Pontuação Média')).toBeVisible();
-    await expect(page.getByText('Faixas Diagnósticas')).toBeVisible();
+    await expect(page.getByText('Leads Qualificados')).toBeVisible();
   });
 
   test('should display diagnostic donut chart', async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should display leads area chart', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: 'Leads por Dia (Últimos 30 dias)' }),
+      page.getByRole('heading', { name: 'Leads (Últimos 7 dias)' }),
     ).toBeVisible();
 
     // Usa .nth(1) para selecionar o segundo gráfico (area chart)

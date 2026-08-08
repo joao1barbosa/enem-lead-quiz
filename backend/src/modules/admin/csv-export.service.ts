@@ -31,7 +31,8 @@ export class CsvExportService {
       ].join(','),
     );
 
-    return [this.header, ...rows].join('\n');
+    // BOM UTF-8 no início para compatibilidade com Excel.
+    return '\uFEFF' + [this.header, ...rows].join('\n');
   }
 
   private escape(value: string): string {

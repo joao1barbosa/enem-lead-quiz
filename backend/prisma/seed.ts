@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { ScoringCalculator } from '../src/modules/scoring/scoring.calculator';
 
 const prisma = new PrismaClient();
 
@@ -12,6 +13,29 @@ interface QuestionSeed {
   order: number;
   text: string;
   alternatives: AlternativeSeed[];
+}
+
+interface QuestionWithAlternatives {
+  id: string;
+  text: string;
+  alternatives: { id: string; text: string; score: number }[];
+}
+
+interface SelectedAnswer {
+  questionId: string;
+  questionText: string;
+  alternativeId: string;
+  alternativeText: string;
+  score: number;
+}
+
+interface LeadSeed {
+  name: string;
+  email: string;
+  phone: string;
+  /** Score alvo da faixa diagnóstica desejada (0-25, 26-50, 51-75, 76-100). */
+  targetScore: number;
+  createdAt: Date;
 }
 
 const questions: QuestionSeed[] = [
@@ -119,6 +143,77 @@ const questions: QuestionSeed[] = [
   },
 ];
 
+/**
+ * Seleciona uma alternativa por pergunta cuja soma dos scores seja EXATAMENTE
+ * `targetScore` (quando o alvo é alcançável), distribuindo a escolha entre as
+ * perguntas de forma balanceada. Se o alvo não for alcançável, usa o valor
+ * mais próximo que é.
+ *
+ * Algoritmo: DP "escolher 1 de cada grupo" sobre as perguntas para descobrir
+ * quais somas são alcançáveis, seguido de backtracking para reconstruir a
+ * seleção. Na reconstrução, entre as alternativas que preservam a soma alvo,
+ * prioriza-se a com score mais próximo da contribuição média ideal.
+ */
+function selectAnswersForTarget(
+  questions: QuestionWithAlternatives[],
+  targetScore: number,
+): SelectedAnswer[] {
+  const n = questions.length;
+
+  // dp[i][s] = é possível somar `s` usando as i primeiras perguntas.
+  const dp: boolean[][] = Array.from({ length: n + 1 }, () => new Array(101).fill(false));
+  dp[0][0] = true;
+  for (let i = 0; i < n; i++) {
+    const scores = questions[i].alternatives.map((a) => a.score);
+    for (let s = 0; s <= 100; s++) {
+      if (!dp[i][s]) continue;
+      for (const score of scores) {
+        if (s + score <= 100) dp[i + 1][s + score] = true;
+      }
+    }
+  }
+
+  // Soma alvo real: exata se alcançável, senão a mais próxima possível.
+  let bestSum = targetScore;
+  if (!dp[n][targetScore]) {
+    let distance = Infinity;
+    for (let s = 0; s <= 100; s++) {
+      if (dp[n][s] && Math.abs(s - targetScore) < distance) {
+        distance = Math.abs(s - targetScore);
+        bestSum = s;
+      }
+    }
+  }
+
+  // Backtracking: reconstruir a seleção que soma `bestSum`.
+  const answers: SelectedAnswer[] = [];
+  let remainingSum = bestSum;
+  for (let i = n - 1; i >= 0; i--) {
+    const question = questions[i];
+    // Alternativas que mantêm `remainingSum` alcançável nas perguntas anteriores.
+    const options = question.alternatives
+      .filter((alt) => remainingSum - alt.score >= 0 && dp[i][remainingSum - alt.score])
+      .map((alt) => ({ alt, score: alt.score }));
+
+    // Entre as viáveis, escolhe a mais próxima da contribuição média ideal.
+    const ideal = remainingSum / (i + 1);
+    const chosen = options.reduce((a, b) =>
+      Math.abs(a.score - ideal) <= Math.abs(b.score - ideal) ? a : b,
+    );
+
+    answers.unshift({
+      questionId: question.id,
+      questionText: question.text,
+      alternativeId: chosen.alt.id,
+      alternativeText: chosen.alt.text,
+      score: chosen.alt.score,
+    });
+    remainingSum -= chosen.alt.score;
+  }
+
+  return answers;
+}
+
 async function main() {
   console.log('Iniciando seed...');
 
@@ -155,328 +250,307 @@ async function main() {
   });
   console.log('Admin padrão criado (admin@admin.com / admin123).');
 
-  // Limpar leads existentes
+  // Limpar leads existentes (respostas são removidas por cascade).
   await prisma.lead.deleteMany();
   console.log('Leads antigos removidos.');
 
-  // Criar leads diversificados
-  const diagnosticMap = {
-    STARTING_POINT: {
-      title: 'Ponto de Partida',
-      message: 'Você está começando. Uma rotina estruturada faz a maior diferença agora.',
-    },
-    IN_CONSTRUCTION: {
-      title: 'Em Construção',
-      message: 'Você já tem base, mas falta consistência para chegar na nota de corte.',
-    },
-    ON_RIGHT_TRACK: {
-      title: 'Bom Caminho',
-      message: 'Sua preparação está sólida. O ganho agora vem de ajuste fino.',
-    },
-    FINAL_STRETCH: {
-      title: 'Reta Final',
-      message: 'Você está muito bem posicionado. O foco é manter o ritmo e não perder pontos bobos.',
-    },
-  };
+  // Perguntas reais do banco (com alternativas persistidas).
+  const quizQuestions = await prisma.question.findMany({
+    include: { alternatives: true },
+    orderBy: { order: 'asc' },
+  });
 
   // Datas verdadeiramente aleatórias dentro das últimas 2 semanas (0-14 dias),
   // sem distribuição uniforme entre os dias.
   const randomDate = () =>
     new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000);
 
-  const leads = [
-    // STARTING_POINT (0-30) - 8 leads
+  // Faixas do DIAGNOSTICS: STARTING_POINT 0-25, IN_CONSTRUCTION 26-50,
+  // ON_RIGHT_TRACK 51-75, FINAL_STRETCH 76-100. O score alvo de cada lead é
+  // atingido exatamente pela soma dos scores das 10 respostas selecionadas.
+  const leads: LeadSeed[] = [
+    // STARTING_POINT (0-25) - 8 leads
     {
       name: 'Ana Beatriz Souza Lima',
       email: 'ana.souza@gmail.com',
       phone: '11912345678',
-      score: 12,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 12,
       createdAt: randomDate(),
     },
     {
       name: 'Carlos Eduardo Martins',
       email: 'carlos.martins@hotmail.com',
       phone: '21923456789',
-      score: 18,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 18,
       createdAt: randomDate(),
     },
     {
       name: 'Fernanda Oliveira Ribeiro',
       email: 'fernanda.ribeiro@outlook.com',
       phone: '31934567890',
-      score: 24,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 16,
       createdAt: randomDate(),
     },
     {
       name: 'Gabriel Santos Ferreira',
       email: 'gabriel.ferreira@uol.com.br',
       phone: '41945678901',
-      score: 7,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 8,
       createdAt: randomDate(),
     },
     {
       name: 'Juliana Costa Barbosa',
       email: 'juliana.barbosa@yahoo.com',
       phone: '51956789012',
-      score: 27,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 14,
       createdAt: randomDate(),
     },
     {
       name: 'Rafael Almeida Nogueira',
       email: 'rafael.nogueira@icloud.com',
       phone: '61967890123',
-      score: 15,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 15,
       createdAt: randomDate(),
     },
     {
       name: 'Larissa Pereira Monteiro',
       email: 'larissa.monteiro@bol.com.br',
       phone: '71978901234',
-      score: 5,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 11,
       createdAt: randomDate(),
     },
     {
       name: 'Thiago Rodrigues Carvalho',
       email: 'thiago.carvalho@terra.com.br',
       phone: '81989012345',
-      score: 21,
-      diagnosticSlug: 'STARTING_POINT',
+      targetScore: 21,
       createdAt: randomDate(),
     },
 
-    // IN_CONSTRUCTION (31-55) - 9 leads
+    // IN_CONSTRUCTION (26-50) - 9 leads
     {
       name: 'Camila Fernandes Azevedo',
       email: 'camila.azevedo@gmail.com',
       phone: '91901234567',
-      score: 33,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 33,
       createdAt: randomDate(),
     },
     {
       name: 'Matheus Araújo Castro',
       email: 'matheus.castro@hotmail.com',
       phone: '11913579246',
-      score: 38,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 38,
       createdAt: randomDate(),
     },
     {
       name: 'Bianca Gomes Teixeira',
       email: 'bianca.teixeira@outlook.com',
       phone: '21924681357',
-      score: 42,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 42,
       createdAt: randomDate(),
     },
     {
       name: 'Vinícius Moraes Rocha',
       email: 'vinicius.rocha@yahoo.com',
       phone: '31935792468',
-      score: 47,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 47,
       createdAt: randomDate(),
     },
     {
       name: 'Patrícia Cardoso Farias',
       email: 'patricia.farias@uol.com.br',
       phone: '41946813579',
-      score: 35,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 35,
       createdAt: randomDate(),
     },
     {
       name: 'Leonardo Pinto Vasconcelos',
       email: 'leonardo.vasconcelos@icloud.com',
       phone: '51957924680',
-      score: 52,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 30,
       createdAt: randomDate(),
     },
     {
       name: 'Aline Rocha Mendonça',
       email: 'aline.mendonca@bol.com.br',
       phone: '61968035791',
-      score: 44,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 44,
       createdAt: randomDate(),
     },
     {
       name: 'Gustavo Nunes Prado',
       email: 'gustavo.prado@terra.com.br',
       phone: '71979146802',
-      score: 39,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 39,
       createdAt: randomDate(),
     },
     {
       name: 'Sabrina Melo Cunha',
       email: 'sabrina.cunha@gmail.com',
       phone: '81980257913',
-      score: 31,
-      diagnosticSlug: 'IN_CONSTRUCTION',
+      targetScore: 31,
       createdAt: randomDate(),
     },
 
-    // ON_RIGHT_TRACK (56-80) - 9 leads
+    // ON_RIGHT_TRACK (51-75) - 9 leads
     {
       name: 'Diego Barbosa Sales',
       email: 'diego.sales@hotmail.com',
       phone: '91991368024',
-      score: 58,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 58,
       createdAt: randomDate(),
     },
     {
       name: 'Isabela Campos Duarte',
       email: 'isabela.duarte@outlook.com',
       phone: '11902479135',
-      score: 63,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 63,
       createdAt: randomDate(),
     },
     {
       name: 'Felipe Moreira Santana',
       email: 'felipe.santana@yahoo.com',
       phone: '21913580246',
-      score: 67,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 67,
       createdAt: randomDate(),
     },
     {
       name: 'Letícia Freitas Barros',
       email: 'leticia.barros@uol.com.br',
       phone: '31924691357',
-      score: 72,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 72,
       createdAt: randomDate(),
     },
     {
       name: 'André Cavalcanti Gomes',
       email: 'andre.gomes@icloud.com',
       phone: '41935702468',
-      score: 76,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 60,
       createdAt: randomDate(),
     },
     {
       name: 'Marina Dias Peixoto',
       email: 'marina.peixoto@bol.com.br',
       phone: '51946813579',
-      score: 60,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 60,
       createdAt: randomDate(),
     },
     {
       name: 'Rodrigo Fonseca Andrade',
       email: 'rodrigo.andrade@terra.com.br',
       phone: '61957924680',
-      score: 69,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 69,
       createdAt: randomDate(),
     },
     {
       name: 'Vanessa Lima Quintana',
       email: 'vanessa.quintana@gmail.com',
       phone: '71968035791',
-      score: 74,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 74,
       createdAt: randomDate(),
     },
     {
       name: 'Bruno Tavares Neves',
       email: 'bruno.neves@hotmail.com',
       phone: '81979146802',
-      score: 57,
-      diagnosticSlug: 'ON_RIGHT_TRACK',
+      targetScore: 57,
       createdAt: randomDate(),
     },
 
-    // FINAL_STRETCH (81-100) - 8 leads
+    // FINAL_STRETCH (76-100) - 8 leads
     {
       name: 'Marcela Viana Coutinho',
       email: 'marcela.coutinho@outlook.com',
       phone: '91980257913',
-      score: 82,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 82,
       createdAt: randomDate(),
     },
     {
       name: 'Pedro Henrique Batista',
       email: 'pedro.batista@yahoo.com',
       phone: '11991368024',
-      score: 87,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 87,
       createdAt: randomDate(),
     },
     {
       name: 'Natália Aguiar Fontes',
       email: 'natalia.fontes@uol.com.br',
       phone: '21902479135',
-      score: 91,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 91,
       createdAt: randomDate(),
     },
     {
       name: 'João Vitor Ramos Silveira',
       email: 'joaovitor.silveira@icloud.com',
       phone: '31913580246',
-      score: 95,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 95,
       createdAt: randomDate(),
     },
     {
       name: 'Renata Barbosa Lopes',
       email: 'renata.lopes@bol.com.br',
       phone: '41924691357',
-      score: 84,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 84,
       createdAt: randomDate(),
     },
     {
       name: 'Eduardo Correia Muniz',
       email: 'eduardo.muniz@terra.com.br',
       phone: '51935702468',
-      score: 89,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 89,
       createdAt: randomDate(),
     },
     {
       name: 'Beatriz Gonçalves Ferraz',
       email: 'beatriz.ferraz@gmail.com',
       phone: '61946813579',
-      score: 98,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 80,
       createdAt: randomDate(),
     },
     {
       name: 'Otávio Siqueira Brandão',
       email: 'otavio.brandao@hotmail.com',
       phone: '71957924680',
-      score: 83,
-      diagnosticSlug: 'FINAL_STRETCH',
+      targetScore: 83,
       createdAt: randomDate(),
     },
   ];
 
+  const scoring = new ScoringCalculator();
+
   for (const lead of leads) {
-    const diagnostic = diagnosticMap[lead.diagnosticSlug as keyof typeof diagnosticMap];
+    const answers = selectAnswersForTarget(quizQuestions, lead.targetScore);
+    const score = answers.reduce((total, answer) => total + answer.score, 0);
+    // Slug/title/message derivados do score via DIAGNOSTICS (RF-02).
+    const diagnostic = scoring.getDiagnostic(score);
+
+    // Lead + respostas em uma única transação (mesmo fluxo do LeadService).
     await prisma.lead.create({
       data: {
-        ...lead,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        score,
+        diagnosticSlug: diagnostic.slug,
         diagnosticTitle: diagnostic.title,
         diagnosticMessage: diagnostic.message,
+        createdAt: lead.createdAt,
+        answers: {
+          create: answers.map((answer) => ({
+            questionId: answer.questionId,
+            questionText: answer.questionText,
+            alternativeId: answer.alternativeId,
+            alternativeText: answer.alternativeText,
+            score: answer.score,
+          })),
+        },
       },
     });
+    console.log(
+      `Lead criado: ${lead.name} | score=${score} | ${diagnostic.slug} | respostas=${answers.length}`,
+    );
   }
-  console.log(`${leads.length} leads diversificados criados.`);
+  console.log(`${leads.length} leads diversificados criados com respostas.`);
 
   console.log('Seed concluído com sucesso.');
 }

@@ -6,6 +6,7 @@ import * as api from '../../../lib/api';
 
 const DASHBOARD = {
   totalLeads: 42,
+  qualifiedLeads: 28,
   averageScore: 71.5,
   distributionByDiagnostic: [
     { slug: 'STARTING_POINT', title: 'Ponto de Partida', count: 5 },
@@ -53,13 +54,14 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByText('Pontuação Média')).toBeInTheDocument();
     expect(screen.getByText('71.5')).toBeInTheDocument();
-    expect(screen.getByText('Faixas Diagnósticas')).toBeInTheDocument();
-    const faixasCard = screen.getByText('Faixas Diagnósticas').closest('div')!.parentElement!;
-    expect(within(faixasCard).getByText('4')).toBeInTheDocument();
+    expect(screen.getByText('Leads Qualificados')).toBeInTheDocument();
+    const qualifiedCard = screen.getByText('Leads Qualificados').closest('div')!.parentElement!;
+    expect(within(qualifiedCard).getByText('28')).toBeInTheDocument();
+    expect(within(qualifiedCard).getByText('Leads com pontuação > 55')).toBeInTheDocument();
 
     // Gráficos
     expect(screen.getByText('Distribuição por Faixa')).toBeInTheDocument();
-    expect(screen.getByText('Leads por Dia (Últimos 30 dias)')).toBeInTheDocument();
+    expect(screen.getByText('Leads (Últimos 7 dias)')).toBeInTheDocument();
 
     expect(api.api.get).toHaveBeenCalledWith('/api/admin/dashboard');
   });

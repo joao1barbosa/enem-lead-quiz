@@ -18,7 +18,7 @@ function formatDayMonth(date: string): string {
 }
 
 /**
- * Gráfico de área com a evolução diária de leads (últimos 30 dias) (RF-05, US-05).
+ * Gráfico de área com a evolução diária de leads (últimos 7 dias) (RF-05, US-05).
  */
 export function LeadsAreaChart({ data }: LeadsAreaChartProps) {
   const formattedData = data.map((item) => ({
@@ -28,11 +28,11 @@ export function LeadsAreaChart({ data }: LeadsAreaChartProps) {
 
   return (
     <div className="bg-white rounded-lg border p-6">
-      <h3 className="text-lg font-semibold mb-4">Leads por Dia (Últimos 30 dias)</h3>
+      <h3 className="text-lg font-semibold mb-4">Leads (Últimos 7 dias)</h3>
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={formattedData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date" interval={0} />
           <YAxis />
           <Tooltip />
           <Area

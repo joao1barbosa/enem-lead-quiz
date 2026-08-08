@@ -41,8 +41,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="p-3 border-t flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
             {user?.email?.[0]?.toUpperCase() || 'A'}
           </div>
@@ -52,10 +52,9 @@ export function Sidebar() {
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+          className="bg-red-200/40 flex items-center gap-2 px-2 py-2 text-sm text-red-600 hover:bg-red-200/85 rounded-lg"
         >
           <LogOut className="w-4 h-4" />
-          <span>Sair</span>
         </button>
       </div>
     </aside>

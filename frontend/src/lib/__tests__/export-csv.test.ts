@@ -2,30 +2,24 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import { exportLeadsCsv } from '../export-csv';
 import * as api from '../api';
+import { saveAs } from 'file-saver';
+
+vi.mock('file-saver', () => ({
+  saveAs: vi.fn(),
+}));
 
 describe('exportLeadsCsv', () => {
-  let createObjectURL: Mock;
-  let revokeObjectURL: Mock;
-
   beforeEach(() => {
     vi.restoreAllMocks();
-    // jsdom não implementa createObjectURL/revokeObjectURL
-    createObjectURL = vi.fn(() => 'blob:mock-url');
-    revokeObjectURL = vi.fn();
-    Object.defineProperty(URL, 'createObjectURL', {
-      value: createObjectURL,
-      configurable: true,
-    });
-    Object.defineProperty(URL, 'revokeObjectURL', {
-      value: revokeObjectURL,
-      configurable: true,
-    });
   });
 
   it('should request the export endpoint with search and diagnostic filters', async () => {
     const getSpy = vi
       .spyOn(api.api, 'get')
-      .mockResolvedValue({ data: new Blob(['a,b,c'], { type: 'text/csv' }) });
+      .mockResolvedValue({
+        data: new Blob(['a,b,c'], { type: 'text/csv' }),
+        headers: { 'content-disposition': 'attachment; filename="enem-lead-quiz.csv"' },
+      });
 
     await exportLeadsCsv({ search: 'joao', diagnostic: 'ON_RIGHT_TRACK' });
 
@@ -35,25 +29,52 @@ describe('exportLeadsCsv', () => {
     });
   });
 
-  it('should trigger a CSV file download and revoke the object URL', async () => {
+  it('should trigger a CSV file download with correct filename', async () => {
     const blob = new Blob(['conteudo'], { type: 'text/csv' });
-    vi.spyOn(api.api, 'get').mockResolvedValue({ data: blob });
-    const clickSpy = vi
-      .spyOn(HTMLAnchorElement.prototype, 'click')
-      .mockImplementation(() => {});
-    const createElementSpy = vi.spyOn(document, 'createElement');
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: blob,
+      headers: { 'content-disposition': 'attachment; filename="enem-lead-quiz.csv"' },
+    });
 
     await exportLeadsCsv({ search: '', diagnostic: '' });
 
-    expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
-    expect(clickSpy).toHaveBeenCalled();
-    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+    expect(saveAs).toHaveBeenCalledWith(expect.any(Blob), 'enem-lead-quiz.csv');
+  });
 
-    const anchor = createElementSpy.mock.results
-      .map((result) => result.value)
-      .find((el) => el.tagName === 'A');
-    expect(anchor).toBeDefined();
-    expect(anchor.download).toMatch(/^leads-\d+\.csv$/);
-    expect(anchor.href).toBe('blob:mock-url');
+  it('should create the Blob with UTF-8 CSV MIME type', async () => {
+    const blob = new Blob(['conteudo'], { type: 'text/csv;charset=utf-8;' });
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: blob,
+      headers: { 'content-disposition': 'attachment; filename="enem-lead-quiz.csv"' },
+    });
+
+    await exportLeadsCsv({ search: '', diagnostic: '' });
+
+    const blobArg = (saveAs as Mock).mock.calls[0][0] as Blob;
+    expect(blobArg.type).toBe('text/csv;charset=utf-8;');
+  });
+
+  it('should extract filename from Content-Disposition header', async () => {
+    const blob = new Blob(['conteudo'], { type: 'text/csv' });
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: blob,
+      headers: { 'content-disposition': 'attachment; filename="custom-name.csv"' },
+    });
+
+    await exportLeadsCsv({ search: '', diagnostic: '' });
+
+    expect(saveAs).toHaveBeenCalledWith(expect.any(Blob), 'custom-name.csv');
+  });
+
+  it('should fallback to default filename if header is missing', async () => {
+    const blob = new Blob(['conteudo'], { type: 'text/csv' });
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: blob,
+      headers: {},
+    });
+
+    await exportLeadsCsv({ search: '', diagnostic: '' });
+
+    expect(saveAs).toHaveBeenCalledWith(expect.any(Blob), 'enem-lead-quiz.csv');
   });
 });

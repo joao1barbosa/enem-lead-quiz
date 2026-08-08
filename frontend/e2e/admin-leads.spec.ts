@@ -176,6 +176,6 @@ test.describe('Admin Leads', () => {
     await page.getByRole('button', { name: 'Exportar CSV' }).click();
 
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/^leads-\d+\.csv$/);
+    expect(download.suggestedFilename()).toMatch(/^enem-lead-quiz\.csv$/);
   });
 });
