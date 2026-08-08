@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { NotFoundException } from '@nestjs/common';
 import { AdminService } from '../admin.service';
 
 type MockPrisma = {
@@ -86,6 +87,128 @@ describe('AdminService', () => {
         { date: '2026-08-01', count: 2 },
         { date: '2026-08-02', count: 1 },
       ]);
+    });
+  });
+
+  describe('getLeads (RF-05)', () => {
+    const mockLeadRow = {
+      id: 'lead-1',
+      name: 'João Silva',
+      email: 'joao@email.com',
+      phone: '11999999999',
+      score: 62,
+      diagnosticSlug: 'ON_RIGHT_TRACK',
+      diagnosticTitle: 'Na Trilha Certa',
+      createdAt: new Date('2026-08-01T10:00:00.000Z'),
+    };
+
+    it('should return paginated leads with total, page and limit', async () => {
+      prisma.lead.findMany.mockResolvedValue([mockLeadRow]);
+      prisma.lead.count.mockResolvedValue(1);
+
+      const result = await service.getLeads({ page: 1, limit: 10 });
+
+      expect(result.total).toBe(1);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(10);
+      expect(result.leads[0]).toEqual({
+        id: 'lead-1',
+        name: 'João Silva',
+        email: 'joao@email.com',
+        phone: '11999999999',
+        score: 62,
+        diagnosticSlug: 'ON_RIGHT_TRACK',
+        diagnosticTitle: 'Na Trilha Certa',
+        createdAt: '2026-08-01T10:00:00.000Z',
+      });
+    });
+
+    it('should apply search and diagnostic filters', async () => {
+      prisma.lead.findMany.mockResolvedValue([]);
+      prisma.lead.count.mockResolvedValue(0);
+
+      await service.getLeads({
+        search: 'joao',
+        diagnostic: 'ON_RIGHT_TRACK',
+        page: 1,
+        limit: 10,
+      });
+
+      expect(prisma.lead.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            diagnosticSlug: 'ON_RIGHT_TRACK',
+          }),
+        }),
+      );
+    });
+
+    it('should default page to 1 and limit to 10', async () => {
+      prisma.lead.findMany.mockResolvedValue([]);
+      prisma.lead.count.mockResolvedValue(0);
+
+      await service.getLeads({});
+
+      expect(prisma.lead.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 0, take: 10 }),
+      );
+    });
+  });
+
+  describe('getLeadDetails (RF-06)', () => {
+    const mockLeadWithAnswers = {
+      id: 'lead-1',
+      name: 'João Silva',
+      email: 'joao@email.com',
+      phone: '11999999999',
+      createdAt: new Date('2026-08-01T10:00:00.000Z'),
+      score: 62,
+      diagnosticSlug: 'ON_RIGHT_TRACK',
+      diagnosticTitle: 'Na Trilha Certa',
+      diagnosticMessage: 'Você está indo muito bem!',
+      answers: [
+        {
+          questionText: 'Pergunta 1',
+          alternativeText: 'Alternativa A',
+          score: 2,
+        },
+        {
+          questionText: 'Pergunta 2',
+          alternativeText: 'Alternativa B',
+          score: 4,
+        },
+      ],
+    };
+
+    it('should return contact info, result and answers summary', async () => {
+      prisma.lead.findUnique.mockResolvedValue(mockLeadWithAnswers);
+
+      const details = await service.getLeadDetails('lead-1');
+
+      expect(details.contactInfo).toEqual({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        phone: '11999999999',
+        createdAt: '2026-08-01T10:00:00.000Z',
+      });
+      expect(details.result).toEqual({
+        score: 62,
+        diagnosticSlug: 'ON_RIGHT_TRACK',
+        diagnosticTitle: 'Na Trilha Certa',
+        diagnosticMessage: 'Você está indo muito bem!',
+      });
+      expect(details.answersSummary).toEqual([
+        { questionText: 'Pergunta 1', selectedOptionText: 'Alternativa A', score: 2 },
+        { questionText: 'Pergunta 2', selectedOptionText: 'Alternativa B', score: 4 },
+      ]);
+    });
+
+    it('should throw 404 when lead does not exist', async () => {
+      prisma.lead.findUnique.mockResolvedValue(null);
+
+      await expect(service.getLeadDetails('missing')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
