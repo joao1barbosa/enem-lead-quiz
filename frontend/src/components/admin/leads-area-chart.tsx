@@ -29,6 +29,22 @@ function formatDayMonth(date: string): string {
  * Usa o Card do shadcn/ui e altura responsiva (250px mobile, 300px desktop).
  */
 export function LeadsAreaChart({ data }: LeadsAreaChartProps) {
+  if (data.length === 0) {
+    return (
+      <Card className="rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Leads por Dia</CardTitle>
+          <CardDescription>Últimos 7 dias</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[250px] items-center justify-center text-muted-foreground">
+            Sem dados no período
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const formattedData = data.map((item) => ({
     date: formatDayMonth(item.date),
     count: item.count,

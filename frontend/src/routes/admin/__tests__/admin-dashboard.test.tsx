@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminDashboard } from '../admin-dashboard';
 import * as api from '../../../lib/api';
@@ -34,12 +34,13 @@ describe('AdminDashboard', () => {
     vi.restoreAllMocks();
   });
 
-  it('should show loading state while fetching', () => {
+  it('should show skeletons while fetching', () => {
     vi.spyOn(api.api, 'get').mockReturnValue(new Promise(() => {}));
 
-    renderPage();
+    const { container } = renderPage();
 
-    expect(screen.getByText('Carregando dashboard...')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
   });
 
   it('should render KPIs and charts with dashboard data', async () => {
@@ -47,7 +48,9 @@ describe('AdminDashboard', () => {
 
     renderPage();
 
-    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+    // Aguarda um valor que só existe no estado com dados (o h1 "Dashboard"
+    // também aparece no skeleton de loading).
+    expect(await screen.findByText('42')).toBeInTheDocument();
 
     // KPIs
     expect(screen.getByText('Total de Leads')).toBeInTheDocument();
@@ -75,5 +78,30 @@ describe('AdminDashboard', () => {
     expect(
       await screen.findByText('Erro ao carregar dashboard')
     ).toBeInTheDocument();
+  });
+
+  it('should retry the request when clicking Tentar novamente', async () => {
+    vi.spyOn(api.api, 'get')
+      .mockRejectedValueOnce(new Error('Network error'))
+      .mockResolvedValueOnce({ data: DASHBOARD });
+
+    renderPage();
+
+    await screen.findByText('Erro ao carregar dashboard');
+    fireEvent.click(screen.getByRole('button', { name: /tentar novamente/i }));
+
+    expect(await screen.findByText('42')).toBeInTheDocument();
+  });
+
+  it('should show empty state in charts when there is no data', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: { ...DASHBOARD, distributionByDiagnostic: [], dailyLeads: [] },
+    });
+
+    renderPage();
+
+    // Aguarda os dados carregarem (o h1 "Dashboard" também aparece no skeleton).
+    expect(await screen.findByText('42')).toBeInTheDocument();
+    expect(screen.getAllByText('Sem dados no período')).toHaveLength(2);
   });
 });

@@ -10,6 +10,7 @@ import { useQuiz } from '../../hooks/use-quiz';
 import { useSubmitLead } from '../../hooks/use-submit-lead';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function QuizFlow() {
   const {
@@ -41,13 +42,13 @@ export function QuizFlow() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Card>
-          <CardContent className="space-y-4 pt-6 text-center">
-            <div className="text-2xl font-semibold">Carregando quiz...</div>
-            <div className="text-muted-foreground">Aguarde um momento</div>
-          </CardContent>
-        </Card>
+      <div className="mx-auto max-w-2xl space-y-8 p-6">
+        <Skeleton className="h-8 w-3/4" />
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-12 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     );
   }

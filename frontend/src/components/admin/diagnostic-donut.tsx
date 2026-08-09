@@ -31,6 +31,21 @@ const DIAGNOSTIC_COLORS: Record<string, string> = {
  * desktop. `cx` fixo em 50% e raios percentuais escalam com o container.
  */
 export function DiagnosticDonut({ data }: DiagnosticDonutProps) {
+  if (data.length === 0) {
+    return (
+      <Card className="rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Distribuição por Faixa</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[250px] items-center justify-center text-muted-foreground">
+            Sem dados no período
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const chartData = data.map((item) => ({
     name: item.title,
     value: item.count,

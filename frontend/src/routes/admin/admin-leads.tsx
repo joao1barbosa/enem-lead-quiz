@@ -1,9 +1,67 @@
 import { useState } from 'react';
 import { useLeads } from '../../hooks/use-leads';
+import { useIsMobile } from '../../hooks/use-is-mobile';
 import { LeadsToolbar } from '../../components/admin/leads-toolbar';
 import { LeadsTable } from '../../components/admin/leads-table';
 import { LeadDetailsModal } from '../../components/admin/lead-details-modal';
 import { exportLeadsCsv } from '../../lib/export-csv';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+/** Skeleton da tabela de leads durante fetch (1º load ou troca de página/busca). */
+function LeadsTableSkeleton({ rows }: { rows: number }) {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table data-testid="leads-table-skeleton" className="w-full">
+          <TableHeader className="bg-muted/50">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="px-4 py-2 md:py-3">Nome</TableHead>
+              <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Email</TableHead>
+              <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Telefone</TableHead>
+              <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Score</TableHead>
+              <TableHead className="px-4 py-2 md:py-3">Faixa</TableHead>
+              <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Data</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: rows }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className="px-4 py-2 md:py-3">
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">
+                  <Skeleton className="h-4 w-40" />
+                </TableCell>
+                <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">
+                  <Skeleton className="h-4 w-28" />
+                </TableCell>
+                <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">
+                  <Skeleton className="h-4 w-8" />
+                </TableCell>
+                <TableCell className="px-4 py-2 md:py-3">
+                  <Skeleton className="h-6 w-28 rounded-full" />
+                </TableCell>
+                <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">
+                  <Skeleton className="h-4 w-20" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
 
 /**
  * Página de gestão de leads (visão operacional) (RF-06, RF-07, US-06, US-07).
@@ -15,7 +73,14 @@ export function AdminLeads() {
   const [page, setPage] = useState(1);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
 
-  const { data, isLoading, error } = useLeads({ search, diagnostic, page });
+  const isMobile = useIsMobile();
+  const { data, isLoading, error, isFetching, refetch } = useLeads({
+    search,
+    diagnostic,
+    page,
+  });
+  // Skeleton com 5 linhas no mobile, 10 no desktop (RNF-03).
+  const skeletonRows = isMobile ? 5 : 10;
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -47,16 +112,24 @@ export function AdminLeads() {
         onExport={handleExport}
       />
 
-      {isLoading && <p className="text-center text-gray-500">Carregando...</p>}
-
-      {error && (
-        <p className="text-center text-red-600">Erro ao carregar leads</p>
+      {(isLoading || (isFetching && data)) && (
+        <LeadsTableSkeleton rows={skeletonRows} />
       )}
 
-      {data && (
+      {error && (
+        <Card>
+          <CardContent className="pt-6 text-center space-y-4">
+            <p className="text-destructive">Erro ao carregar leads</p>
+            <Button onClick={() => refetch()}>Tentar novamente</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {data && !isFetching && (
         <>
           <LeadsTable
             leads={data.leads}
+            hasFilters={search !== '' || diagnostic !== ''}
             onLeadClick={(lead) => setSelectedLead(lead.id)}
           />
 

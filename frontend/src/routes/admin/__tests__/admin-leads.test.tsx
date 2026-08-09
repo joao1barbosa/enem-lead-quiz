@@ -76,11 +76,12 @@ describe('AdminLeads', () => {
     vi.mocked(exportLeadsCsv).mockReset();
   });
 
-  it('should show a loading message while fetching', () => {
+  it('should show a table skeleton while fetching', () => {
     vi.spyOn(api.api, 'get').mockReturnValue(new Promise(() => {}));
-    render(<AdminLeads />, { wrapper });
+    const { container } = render(<AdminLeads />, { wrapper });
 
-    expect(screen.getByText('Carregando...')).toBeInTheDocument();
+    expect(screen.getByTestId('leads-table-skeleton')).toBeInTheDocument();
+    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
   });
 
   it('should render toolbar, table and pagination after loading', async () => {
@@ -137,6 +138,48 @@ describe('AdminLeads', () => {
     render(<AdminLeads />, { wrapper });
 
     expect(await screen.findByText('Erro ao carregar leads')).toBeInTheDocument();
+  });
+
+  it('should retry the request when clicking Tentar novamente', async () => {
+    vi.spyOn(api.api, 'get')
+      .mockRejectedValueOnce(new Error('Network error'))
+      .mockResolvedValueOnce({ data: PAGE_1 });
+
+    render(<AdminLeads />, { wrapper });
+
+    await screen.findByText('Erro ao carregar leads');
+    fireEvent.click(screen.getByRole('button', { name: /tentar novamente/i }));
+
+    expect(await screen.findByText('João Silva')).toBeInTheDocument();
+  });
+
+  it('should show an empty state when there are no leads', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: { leads: [], total: 0, page: 1, limit: 10 },
+    });
+
+    render(<AdminLeads />, { wrapper });
+
+    expect(
+      await screen.findByText('Nenhum lead encontrado')
+    ).toBeInTheDocument();
+  });
+
+  it('should show a filtered empty state when filters are active', async () => {
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: { leads: [], total: 0, page: 1, limit: 10 },
+    });
+
+    render(<AdminLeads />, { wrapper });
+
+    await screen.findByText('Nenhum lead encontrado');
+    fireEvent.change(screen.getByPlaceholderText('Buscar por nome ou email...'), {
+      target: { value: 'xyz' },
+    });
+
+    expect(
+      await screen.findByText('Nenhum lead encontrado com os filtros aplicados')
+    ).toBeInTheDocument();
   });
 
   it('should call exportLeadsCsv with the current filters when exporting', async () => {

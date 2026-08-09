@@ -75,4 +75,18 @@ describe('LeadsTable', () => {
     expect(screen.getByText('Nome').className).not.toContain('hidden');
     expect(screen.getByText('Faixa').className).not.toContain('hidden');
   });
+
+  it('should show an empty state message when there are no leads', () => {
+    render(<LeadsTable leads={[]} onLeadClick={vi.fn()} />);
+
+    expect(screen.getByText('Nenhum lead encontrado')).toBeInTheDocument();
+  });
+
+  it('should show a filtered empty state message when filters are applied', () => {
+    render(<LeadsTable leads={[]} onLeadClick={vi.fn()} hasFilters />);
+
+    expect(
+      screen.getByText('Nenhum lead encontrado com os filtros aplicados')
+    ).toBeInTheDocument();
+  });
 });

@@ -6,12 +6,15 @@ import {
   CardContent,
   CardDescription,
 } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface KpiCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
   description?: string;
+  /** Quando true, exibe um Skeleton no lugar do valor (loading). */
+  loading?: boolean;
 }
 
 /**
@@ -19,7 +22,13 @@ interface KpiCardProps {
  * Construído com o componente Card do shadcn/ui e tokens semânticos
  * (bg-card, text-card-foreground, border-border, text-muted-foreground).
  */
-export function KpiCard({ title, value, icon: Icon, description }: KpiCardProps) {
+export function KpiCard({
+  title,
+  value,
+  icon: Icon,
+  description,
+  loading,
+}: KpiCardProps) {
   return (
     <Card className="rounded-lg">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -29,7 +38,11 @@ export function KpiCard({ title, value, icon: Icon, description }: KpiCardProps)
         <Icon className="w-5 h-5 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold text-card-foreground">{value}</div>
+        {loading ? (
+          <Skeleton className="h-9 w-16" />
+        ) : (
+          <div className="text-3xl font-bold text-card-foreground">{value}</div>
+        )}
         {description && (
           <CardDescription className="mt-1">{description}</CardDescription>
         )}

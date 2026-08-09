@@ -8,6 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatPhone } from '@/lib/format-phone';
 
 interface LeadDetailsModalProps {
@@ -23,7 +25,7 @@ interface LeadDetailsModalProps {
  * fechamento por ESC e role="dialog" nativos.
  */
 export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
-  const { data, isLoading } = useLeadDetails(leadId);
+  const { data, isLoading, isError } = useLeadDetails(leadId);
 
   return (
     <Dialog
@@ -55,7 +57,22 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
         </DialogHeader>
 
         {isLoading && (
-          <p className="text-center text-gray-500">Carregando detalhes...</p>
+          <div data-testid="lead-details-skeleton" className="space-y-4">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        )}
+
+        {isError && (
+          <div className="py-8 text-center space-y-4">
+            <p className="text-destructive">Erro ao carregar detalhes do lead</p>
+            <Button data-testid="details-error-close" onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
         )}
 
         {data && (

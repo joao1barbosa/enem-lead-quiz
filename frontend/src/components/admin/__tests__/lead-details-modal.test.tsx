@@ -61,11 +61,28 @@ describe('LeadDetailsModal', () => {
     expect(screen.getByText(/5-10 horas/)).toBeInTheDocument();
   });
 
-  it('should show loading state while fetching details', () => {
-    vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
-    render(<LeadDetailsModal leadId="lead-1" onClose={vi.fn()} />, { wrapper });
+  it('should show a skeleton while fetching details', () => {
+    vi.spyOn(api.api, 'get').mockReturnValue(new Promise(() => {}));
+    render(<LeadDetailsModal leadId="lead-1" onClose={vi.fn()} />, {
+      wrapper,
+    });
 
-    expect(screen.getByText('Carregando detalhes...')).toBeInTheDocument();
+    // O Dialog do Radix renderiza via portal: consultar document, não container.
+    expect(screen.getByTestId('lead-details-skeleton')).toBeInTheDocument();
+    expect(document.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
+  });
+
+  it('should show an error fallback with close button when fetch fails', async () => {
+    vi.spyOn(api.api, 'get').mockRejectedValue(new Error('Network error'));
+    const onClose = vi.fn();
+    render(<LeadDetailsModal leadId="lead-1" onClose={onClose} />, { wrapper });
+
+    expect(
+      await screen.findByText('Erro ao carregar detalhes do lead')
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('details-error-close'));
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should call onClose when clicking the close button', async () => {

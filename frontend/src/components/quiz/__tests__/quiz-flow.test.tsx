@@ -315,12 +315,11 @@ describe('QuizFlow', () => {
     expect(useQuizStore.getState().result).toBeNull();
   });
 
-  it('should show loading state while the quiz is being fetched', () => {
+  it('should show a skeleton while the quiz is being fetched', () => {
     mockUseQuiz.isLoading = true;
-    render(<QuizFlow />);
+    const { container } = render(<QuizFlow />);
 
-    expect(screen.getByText('Carregando quiz...')).toBeInTheDocument();
-    expect(screen.getByText('Aguarde um momento')).toBeInTheDocument();
+    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
   });
 
   it('should show error state when the quiz fails to load', () => {
