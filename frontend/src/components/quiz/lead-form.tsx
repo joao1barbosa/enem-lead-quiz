@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { formatPhoneInput } from '@/lib/format-phone';
 
 const leadFormSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('Email inválido'),
-  phone: z.string().regex(/^\d{10,11}$/, 'Telefone inválido (10-11 dígitos)'),
+  // Valida apenas os dígitos (móvel com 11 dígitos); a máscara é exibida no input.
+  phone: z.string().regex(/^\d{11}$/, 'Telefone inválido (11 dígitos)'),
   honeypot: z.string().optional(),
 });
 
@@ -26,7 +29,11 @@ interface FormFieldProps {
   type?: 'text' | 'email' | 'tel';
   placeholder?: string;
   error?: string;
-  registration: ReturnType<ReturnType<typeof useForm<LeadFormData>>['register']>;
+  /** Props de registro do react-hook-form (campos sem máscara). */
+  registration?: ReturnType<ReturnType<typeof useForm<LeadFormData>>['register']>;
+  /** Valor controlado (campos com máscara). */
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function FormField({
@@ -36,6 +43,8 @@ function FormField({
   placeholder,
   error,
   registration,
+  value,
+  onChange,
 }: FormFieldProps) {
   return (
     <div>
@@ -43,10 +52,12 @@ function FormField({
         {label}
       </Label>
       <Input
-        {...registration}
+        {...(registration ?? {})}
         id={id}
         type={type}
         placeholder={placeholder}
+        {...(value !== undefined ? { value } : {})}
+        {...(onChange ? { onChange } : {})}
         className="mt-1 h-auto rounded-lg p-3"
       />
       {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
@@ -58,10 +69,21 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting: formSubmitting },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadFormSchema),
   });
+
+  // Valor exibido no input de telefone (com máscara); o form guarda apenas os dígitos.
+  const [phoneDisplay, setPhoneDisplay] = useState('');
+
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneInput(event.target.value);
+    setPhoneDisplay(formatted);
+    // Guarda apenas os dígitos no react-hook-form (enviado ao backend em plain text).
+    setValue('phone', formatted.replace(/\D/g, ''), { shouldValidate: true });
+  };
 
   const handleFormSubmit = (data: LeadFormData) => {
     // Honeypot preenchido = bot: descarta silenciosamente (RNF-01).
@@ -81,6 +103,7 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
       <FormField
         id="name"
         label="Nome"
+        placeholder="Seu nome completo"
         error={errors.name?.message}
         registration={register('name')}
       />
@@ -88,6 +111,7 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
         id="email"
         label="Email"
         type="email"
+        placeholder="seu@email.com"
         error={errors.email?.message}
         registration={register('email')}
       />
@@ -95,9 +119,10 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
         id="phone"
         label="Telefone"
         type="tel"
-        placeholder="11999999999"
+        placeholder="(11) 99999-9999"
         error={errors.phone?.message}
-        registration={register('phone')}
+        value={phoneDisplay}
+        onChange={handlePhoneChange}
       />
 
       {/* Honeypot: invisível para humanos, detecta bots preenchendo (RNF-01) */}

@@ -71,6 +71,18 @@ describe('LeadForm', () => {
     });
   });
 
+  it('should format phone with mask while typing', () => {
+    render(<LeadForm onSubmit={vi.fn()} />);
+
+    const phoneInput = screen.getByLabelText(/telefone/i);
+
+    fireEvent.change(phoneInput, { target: { value: '119' } });
+    expect(phoneInput).toHaveValue('(11) 9');
+
+    fireEvent.change(phoneInput, { target: { value: '11999999999' } });
+    expect(phoneInput).toHaveValue('(11) 99999-9999');
+  });
+
   it('should have hidden honeypot field', () => {
     render(<LeadForm onSubmit={vi.fn()} />);
 
