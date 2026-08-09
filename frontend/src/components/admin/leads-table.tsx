@@ -1,5 +1,4 @@
 import type { Lead } from '../../hooks/use-leads';
-import { useIsMobile } from '../../hooks/use-is-mobile';
 import {
   Table,
   TableBody,
@@ -26,18 +25,9 @@ const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
 };
 
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
-  const isMobile = useIsMobile();
-  const ROW_HEIGHT = 50; // px por linha (py-3 + conteúdo)
-  const HEADER_HEIGHT = 46; // px do header
-  // Paginação responsiva (RNF-03): 5 linhas no mobile, 10 no desktop.
-  const MAX_ROWS = isMobile ? 5 : 10;
-  // 296px no mobile (46 + 5 × 50), 546px no desktop (46 + 10 × 50)
-  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT;
-
   return (
-    <Card className="overflow-hidden" style={{ height: `${TABLE_HEIGHT}px` }}>
-      <CardContent className="p-0 h-full flex flex-col">
-        <div className="flex-1 flex flex-col">
+    <Card>
+      <CardContent className="p-0">
           <Table data-testid="leads-table" className="w-full">
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-transparent">
@@ -72,9 +62,6 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
               ))}
             </TableBody>
           </Table>
-          {/* Espaço vazio com fundo diferenciado quando há menos de MAX_ROWS registros */}
-          {leads.length < MAX_ROWS && <div className="bg-muted/20 flex-1" />}
-        </div>
       </CardContent>
     </Card>
   );

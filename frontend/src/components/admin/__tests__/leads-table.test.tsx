@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LeadsTable } from '../leads-table';
 
@@ -24,27 +24,6 @@ const LEADS = [
     createdAt: '2026-08-06T12:00:00.000Z',
   },
 ];
-
-// Default do setup.ts (desktop). Restaurado após testes que simulam mobile.
-const desktopMatchMedia = window.matchMedia;
-
-afterEach(() => {
-  window.matchMedia = desktopMatchMedia;
-});
-
-/** Simula viewport mobile (max-width: 767px) para o hook useIsMobile (RNF-03). */
-function mockMobileViewport() {
-  window.matchMedia = vi.fn().mockReturnValue({
-    matches: true,
-    media: '(max-width: 767px)',
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  });
-}
 
 describe('LeadsTable', () => {
   it('should render column headers', () => {
@@ -80,26 +59,6 @@ describe('LeadsTable', () => {
     fireEvent.click(screen.getByText('Maria Souza'));
 
     expect(onLeadClick).toHaveBeenCalledWith(LEADS[1]);
-  });
-
-  it('should keep desktop height of 546px (10 rows)', () => {
-    const { container } = render(
-      <LeadsTable leads={LEADS} onLeadClick={vi.fn()} />,
-    );
-
-    const card = container.querySelector('.overflow-hidden');
-    expect(card).toHaveStyle({ height: '546px' });
-  });
-
-  it('should use mobile height of 296px (5 rows)', () => {
-    mockMobileViewport();
-
-    const { container } = render(
-      <LeadsTable leads={LEADS} onLeadClick={vi.fn()} />,
-    );
-
-    const card = container.querySelector('.overflow-hidden');
-    expect(card).toHaveStyle({ height: '296px' });
   });
 
   it('should hide Email, Telefone, Score and Data columns on mobile', () => {
