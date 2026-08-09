@@ -1,5 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { useIsMobile } from './use-is-mobile';
 
 export interface Lead {
   id: string;
@@ -30,9 +31,15 @@ export interface UseLeadsParams {
  * Busca a lista paginada de leads (GET /api/admin/leads) com filtros de
  * busca textual e faixa diagnóstica (RF-06, US-06). Mantém os dados da página
  * anterior enquanto navega (placeholderData) para uma paginação fluida.
+ *
+ * Paginação responsiva (RNF-03): 5 registros por página no mobile (< 768px)
+ * e 10 no desktop, salvo quando o caller define um `limit` explícito.
  */
 export function useLeads(params: UseLeadsParams = {}) {
-  const { search = '', diagnostic = '', page = 1, limit = 10 } = params;
+  const isMobile = useIsMobile();
+  const { search = '', diagnostic = '', page = 1 } = params;
+  // Ajusta o pageSize dinamicamente: 5 no mobile, 10 no desktop.
+  const limit = params.limit ?? (isMobile ? 5 : 10);
 
   return useQuery<LeadsResponse>({
     queryKey: ['leads', { search, diagnostic, page, limit }],

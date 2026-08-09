@@ -1,6 +1,22 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// jsdom não implementa matchMedia, usado pelo hook useIsMobile() (RNF-03).
+// Função simples (não um vi.fn) para sobreviver a vi.restoreAllMocks()/
+// vi.clearAllMocks() de testes que usam o hook. Default matches:false
+// (desktop) preserva o comportamento dos testes existentes; testes que
+// simulam viewport mobile sobrescrevem window.matchMedia diretamente.
+window.matchMedia = ((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: () => {},
+  removeListener: () => {},
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  dispatchEvent: () => {},
+})) as unknown as typeof window.matchMedia;
+
 // jsdom não implementa scrollIntoView; o Radix Select o chama ao abrir o menu
 // para posicionar o item ativo.
 if (typeof Element.prototype.scrollIntoView !== 'function') {

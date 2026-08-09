@@ -15,7 +15,7 @@ export function AdminLeads() {
   const [page, setPage] = useState(1);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
 
-  const { data, isLoading, error } = useLeads({ search, diagnostic, page, limit: 10 });
+  const { data, isLoading, error } = useLeads({ search, diagnostic, page });
 
   const handleSearchChange = (value: string) => {
     setSearch(value);

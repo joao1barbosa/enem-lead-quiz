@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -13,6 +13,13 @@ const createWrapper = () => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
+
+// Default do setup.ts (desktop). Restaurado após testes que simulam mobile.
+const desktopMatchMedia = window.matchMedia;
+
+afterEach(() => {
+  window.matchMedia = desktopMatchMedia;
+});
 
 describe('useLeads', () => {
   beforeEach(() => {
@@ -81,5 +88,33 @@ describe('useLeads', () => {
     });
 
     expect(result.current.error).toBeDefined();
+  });
+
+  it('should default to 5 leads per page on mobile viewport', async () => {
+    // Simula viewport mobile (max-width: 767px) — paginação responsiva (RNF-03)
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      media: '(max-width: 767px)',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    });
+
+    vi.spyOn(api.api, 'get').mockResolvedValue({
+      data: { leads: [], total: 0, page: 1, limit: 5 },
+    });
+
+    const { result } = renderHook(() => useLeads(), { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(api.api.get).toHaveBeenCalledWith('/api/admin/leads', {
+      params: { search: '', diagnostic: '', page: 1, limit: 5 },
+    });
   });
 });

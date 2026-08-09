@@ -32,8 +32,9 @@ export default defineConfig({
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
-      // Spec de navegação por sidebar é exclusivo do desktop (≥1024px).
-      testIgnore: [/admin-navigation\.spec\.ts/],
+      // Specs de sidebar desktop (≥1024px) e de tabela de leads desktop
+      // (10 registros/todas as colunas) são exclusivos do projeto chromium.
+      testIgnore: [/admin-navigation\.spec\.ts/, /admin-leads\.spec\.ts/],
     },
   ],
   webServer: {

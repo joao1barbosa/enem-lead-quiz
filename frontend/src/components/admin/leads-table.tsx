@@ -1,4 +1,5 @@
 import type { Lead } from '../../hooks/use-leads';
+import { useIsMobile } from '../../hooks/use-is-mobile';
 import {
   Table,
   TableBody,
@@ -25,10 +26,13 @@ const DIAGNOSTIC_BADGE_CLASSES: Record<string, string> = {
 };
 
 export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
-  const MAX_ROWS = 10;
+  const isMobile = useIsMobile();
   const ROW_HEIGHT = 50; // px por linha (py-3 + conteúdo)
   const HEADER_HEIGHT = 46; // px do header
-  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT; // 546px
+  // Paginação responsiva (RNF-03): 5 linhas no mobile, 10 no desktop.
+  const MAX_ROWS = isMobile ? 5 : 10;
+  // 296px no mobile (46 + 5 × 50), 546px no desktop (46 + 10 × 50)
+  const TABLE_HEIGHT = HEADER_HEIGHT + MAX_ROWS * ROW_HEIGHT;
 
   return (
     <Card className="overflow-hidden" style={{ height: `${TABLE_HEIGHT}px` }}>
@@ -38,11 +42,11 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-transparent">
                 <TableHead className="px-4 py-3">Nome</TableHead>
-                <TableHead className="px-4 py-3">Email</TableHead>
-                <TableHead className="px-4 py-3">Telefone</TableHead>
-                <TableHead className="px-4 py-3">Score</TableHead>
+                <TableHead className="px-4 py-3 hidden md:table-cell">Email</TableHead>
+                <TableHead className="px-4 py-3 hidden md:table-cell">Telefone</TableHead>
+                <TableHead className="px-4 py-3 hidden md:table-cell">Score</TableHead>
                 <TableHead className="px-4 py-3">Faixa</TableHead>
-                <TableHead className="px-4 py-3">Data</TableHead>
+                <TableHead className="px-4 py-3 hidden md:table-cell">Data</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -53,22 +57,22 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   className="cursor-pointer hover:bg-muted"
                 >
                   <TableCell className="px-4 py-3">{lead.name}</TableCell>
-                  <TableCell className="px-4 py-3 max-w-[240px] truncate">{lead.email}</TableCell>
-                  <TableCell className="px-4 py-3">{formatPhone(lead.phone)}</TableCell>
-                  <TableCell className="px-4 py-3 text-center">{lead.score}</TableCell>
+                  <TableCell className="px-4 py-3 max-w-[240px] truncate hidden md:table-cell">{lead.email}</TableCell>
+                  <TableCell className="px-4 py-3 hidden md:table-cell">{formatPhone(lead.phone)}</TableCell>
+                  <TableCell className="px-4 py-3 text-center hidden md:table-cell">{lead.score}</TableCell>
                   <TableCell className="px-4 py-3 flex justify-center">
                     <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100/80 text-gray-800 border-gray-300 rounded-full'}>
                       {lead.diagnosticTitle}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3">
+                  <TableCell className="px-4 py-3 hidden md:table-cell">
                     {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          {/* Espaço vazio com fundo diferenciado quando há menos de 10 registros */}
+          {/* Espaço vazio com fundo diferenciado quando há menos de MAX_ROWS registros */}
           {leads.length < MAX_ROWS && <div className="bg-muted/20 flex-1" />}
         </div>
       </CardContent>

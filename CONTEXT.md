@@ -57,3 +57,11 @@ Refatorar o frontend para usar shadcn/ui como biblioteca de componentes base, su
 3. Refatorar componentes admin na ordem definida
 4. Validar testes após cada componente
 5. Repetir para quiz
+
+## Glossário de Termos Resolvidos
+
+**Viewport mobile**: Viewport com largura < 768px (breakpoint `md:` do Tailwind). Detectado via `window.matchMedia('(max-width: 767px)')` no hook `useIsMobile()`.
+
+**Paginação responsiva**: Comportamento da tabela de leads que ajusta o número de registros por página baseado no viewport — 5 no mobile, 10 no desktop. Implementada no hook `use-leads.ts`.
+
+**Colunas essenciais (mobile)**: Nome e Faixa de Diagnóstico. Demais colunas (Email, Telefone, Score, Data) são ocultas no mobile e acessíveis via modal de detalhes.
