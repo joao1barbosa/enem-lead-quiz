@@ -1,20 +1,10 @@
 import { motion } from 'framer-motion';
 import type { LeadResult } from '../../types/quiz';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScoreCircle } from '@/components/ui/score-circle';
 
 interface ResultPageProps {
   result: LeadResult;
-}
-
-const DIAGNOSTIC_COLOR_MAP: Record<string, string> = {
-  STARTING_POINT: 'text-diagnostic-starting',
-  IN_CONSTRUCTION: 'text-diagnostic-construction',
-  ON_RIGHT_TRACK: 'text-diagnostic-track',
-  FINAL_STRETCH: 'text-diagnostic-stretch',
-};
-
-function getScoreColor(slug: string): string {
-  return DIAGNOSTIC_COLOR_MAP[slug] ?? 'text-primary';
 }
 
 /**
@@ -23,8 +13,6 @@ function getScoreColor(slug: string): string {
  * (Framer Motion, requirements.md §7.4).
  */
 export function ResultPage({ result }: ResultPageProps) {
-  const scoreColor = getScoreColor(result.diagnosticSlug);
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -34,7 +22,7 @@ export function ResultPage({ result }: ResultPageProps) {
     >
       <Card>
         <CardHeader className="space-y-4 text-center">
-          <div data-testid="score" className={`text-6xl font-bold ${scoreColor}`}>{result.score}</div>
+          <ScoreCircle score={result.score} />
           <CardTitle data-testid="diagnostic-title" className="text-3xl font-semibold">
             {result.diagnosticTitle}
           </CardTitle>
