@@ -8,11 +8,11 @@ interface MediaQueryListMock {
   matches: boolean;
   media: string;
   onchange: null;
-  addEventListener: ReturnType<typeof vi.fn>;
-  removeEventListener: ReturnType<typeof vi.fn>;
-  addListener: ReturnType<typeof vi.fn>;
-  removeListener: ReturnType<typeof vi.fn>;
-  dispatchEvent: ReturnType<typeof vi.fn>;
+  addEventListener: (...args: any[]) => void;
+  removeEventListener: (...args: any[]) => void;
+  addListener: (...args: any[]) => void;
+  removeListener: (...args: any[]) => void;
+  dispatchEvent: (...args: any[]) => void;
 }
 
 /** Substitui window.matchMedia por um mock controlável pelo teste (RNF-03). */
