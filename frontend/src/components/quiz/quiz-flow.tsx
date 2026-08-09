@@ -8,7 +8,6 @@ import { ResultPage } from './result-page';
 import { slideTransition, slideVariants } from './animation-variants';
 import { useQuiz } from '../../hooks/use-quiz';
 import { useSubmitLead } from '../../hooks/use-submit-lead';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -56,14 +55,12 @@ export function QuizFlow() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Card>
-          <CardContent className="space-y-4 pt-6 text-center">
-            <div className="text-2xl font-semibold text-destructive">Erro</div>
-            <div className="text-muted-foreground">
-              Não foi possível carregar o quiz. Tente novamente.
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-4 text-center">
+          <div className="text-2xl font-semibold text-destructive">Erro</div>
+          <div className="text-muted-foreground">
+            Não foi possível carregar o quiz. Tente novamente.
+          </div>
+        </div>
       </div>
     );
   }
