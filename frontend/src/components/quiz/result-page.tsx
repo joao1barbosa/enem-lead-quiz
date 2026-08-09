@@ -6,12 +6,25 @@ interface ResultPageProps {
   result: LeadResult;
 }
 
+const DIAGNOSTIC_COLOR_MAP: Record<string, string> = {
+  STARTING_POINT: 'text-diagnostic-starting',
+  IN_CONSTRUCTION: 'text-diagnostic-construction',
+  ON_RIGHT_TRACK: 'text-diagnostic-track',
+  FINAL_STRETCH: 'text-diagnostic-stretch',
+};
+
+function getScoreColor(slug: string): string {
+  return DIAGNOSTIC_COLOR_MAP[slug] ?? 'text-primary';
+}
+
 /**
  * Página de resultado (US-03): pontuação, faixa de diagnóstico,
  * mensagem personalizada e resumo das respostas, com animação de entrada
  * (Framer Motion, requirements.md §7.4).
  */
 export function ResultPage({ result }: ResultPageProps) {
+  const scoreColor = getScoreColor(result.diagnosticSlug);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -21,7 +34,7 @@ export function ResultPage({ result }: ResultPageProps) {
     >
       <Card>
         <CardHeader className="space-y-4 text-center">
-          <div data-testid="score" className="text-6xl font-bold text-primary">{result.score}</div>
+          <div data-testid="score" className={`text-6xl font-bold ${scoreColor}`}>{result.score}</div>
           <CardTitle data-testid="diagnostic-title" className="text-3xl font-semibold">
             {result.diagnosticTitle}
           </CardTitle>
