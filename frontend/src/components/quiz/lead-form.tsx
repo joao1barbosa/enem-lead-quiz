@@ -1,6 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 const leadFormSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -26,9 +29,6 @@ interface FormFieldProps {
   registration: ReturnType<ReturnType<typeof useForm<LeadFormData>>['register']>;
 }
 
-const inputClassName =
-  'mt-1 w-full rounded-lg border border-border p-3';
-
 function FormField({
   id,
   label,
@@ -39,15 +39,15 @@ function FormField({
 }: FormFieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <Label htmlFor={id} className="block">
         {label}
-      </label>
-      <input
+      </Label>
+      <Input
         {...registration}
         id={id}
         type={type}
         placeholder={placeholder}
-        className={inputClassName}
+        className="mt-1 h-auto rounded-lg p-3"
       />
       {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
     </div>
@@ -112,14 +112,14 @@ export function LeadForm({ onSubmit, isSubmitting: submitting = false }: LeadFor
         style={{ position: 'absolute', left: '-9999px' }}
       />
 
-      <button
+      <Button
         type="submit"
         data-testid="submit-button"
         disabled={formSubmitting || submitting}
-        className="w-full rounded-lg bg-primary px-6 py-3 text-primary-foreground font-semibold disabled:opacity-50"
+        className="w-full h-auto rounded-lg px-6 py-3 text-base font-semibold"
       >
         Ver Resultado
-      </button>
+      </Button>
     </form>
   );
 }

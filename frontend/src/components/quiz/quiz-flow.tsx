@@ -8,6 +8,8 @@ import { ResultPage } from './result-page';
 import { slideTransition, slideVariants } from './animation-variants';
 import { useQuiz } from '../../hooks/use-quiz';
 import { useSubmitLead } from '../../hooks/use-submit-lead';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export function QuizFlow() {
   const {
@@ -40,10 +42,12 @@ export function QuizFlow() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="space-y-4 text-center">
-          <div className="text-2xl font-semibold">Carregando quiz...</div>
-          <div className="text-muted-foreground">Aguarde um momento</div>
-        </div>
+        <Card>
+          <CardContent className="space-y-4 pt-6 text-center">
+            <div className="text-2xl font-semibold">Carregando quiz...</div>
+            <div className="text-muted-foreground">Aguarde um momento</div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -51,12 +55,14 @@ export function QuizFlow() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="space-y-4 text-center">
-          <div className="text-2xl font-semibold text-destructive">Erro</div>
-          <div className="text-muted-foreground">
-            Não foi possível carregar o quiz. Tente novamente.
-          </div>
-        </div>
+        <Card>
+          <CardContent className="space-y-4 pt-6 text-center">
+            <div className="text-2xl font-semibold text-destructive">Erro</div>
+            <div className="text-muted-foreground">
+              Não foi possível carregar o quiz. Tente novamente.
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -166,23 +172,22 @@ export function QuizFlow() {
       </div>
 
       <div className="flex justify-between">
-        <button
+        <Button
           data-testid="previous-button"
+          variant="secondary"
           onClick={handlePrevious}
           disabled={isFirstQuestion}
-          className="rounded-lg bg-secondary px-6 py-2 text-secondary-foreground disabled:opacity-50"
         >
           Anterior
-        </button>
+        </Button>
 
-        <button
+        <Button
           data-testid="next-button"
           onClick={handleNext}
           disabled={!selectedAnswer}
-          className="rounded-lg bg-primary px-6 py-2 text-primary-foreground disabled:opacity-50"
         >
           {isLastQuestion ? 'Ver Resultado' : 'Próxima'}
-        </button>
+        </Button>
       </div>
     </div>
   );

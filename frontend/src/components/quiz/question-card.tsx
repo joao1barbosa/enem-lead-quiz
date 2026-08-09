@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import type { Question } from '../../types/quiz';
 import { fadeVariants } from './animation-variants';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface QuestionCardProps {
   question: Question;
@@ -19,32 +21,37 @@ export function QuestionCard({
       animate="animate"
       variants={fadeVariants}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
     >
-      <h2 className="text-2xl font-semibold">{question.text}</h2>
-      <div className="space-y-3">
-        {question.alternatives.map((alternative, index) => {
-          const isSelected = selectedAnswer === alternative.id;
-          return (
-            <motion.button
-              key={alternative.id}
-              data-testid={`alternative-${index}`}
-              onClick={() => onSelectAnswer(question.id, alternative.id)}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`w-full rounded-lg border-2 p-4 text-left transition-colors ${
-                isSelected
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border hover:border-primary'
-              }`}
-            >
-              {alternative.text}
-            </motion.button>
-          );
-        })}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-semibold">{question.text}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {question.alternatives.map((alternative, index) => {
+            const isSelected = selectedAnswer === alternative.id;
+            return (
+              <motion.div
+                key={alternative.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  data-testid={`alternative-${index}`}
+                  onClick={() => onSelectAnswer(question.id, alternative.id)}
+                  variant={isSelected ? 'default' : 'outline'}
+                  className={`w-full justify-start text-base ${
+                    isSelected ? 'bg-primary' : ''
+                  }`}
+                >
+                  {alternative.text}
+                </Button>
+              </motion.div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

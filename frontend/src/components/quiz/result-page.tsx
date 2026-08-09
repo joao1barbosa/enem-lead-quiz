@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { LeadResult } from '../../types/quiz';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ResultPageProps {
   result: LeadResult;
@@ -18,25 +19,31 @@ export function ResultPage({ result }: ResultPageProps) {
       transition={{ duration: 0.5 }}
       className="mx-auto max-w-2xl space-y-8 p-6"
     >
-      <div className="space-y-4 text-center">
-        <div data-testid="score" className="text-6xl font-bold text-primary">{result.score}</div>
-        <h2 data-testid="diagnostic-title" className="text-3xl font-semibold">{result.diagnosticTitle}</h2>
-        <p className="text-lg text-muted-foreground">{result.diagnosticMessage}</p>
-      </div>
+      <Card>
+        <CardHeader className="space-y-4 text-center">
+          <div data-testid="score" className="text-6xl font-bold text-primary">{result.score}</div>
+          <CardTitle data-testid="diagnostic-title" className="text-3xl font-semibold">
+            {result.diagnosticTitle}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-center text-lg text-muted-foreground">{result.diagnosticMessage}</p>
 
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Resumo das Respostas</h3>
-        <div className="space-y-3">
-          {result.answersSummary.map((answer, index) => (
-            <div key={index} className="rounded-lg border border-border p-4">
-              <p className="font-medium">{answer.questionText}</p>
-              <p className="text-sm text-muted-foreground">
-                Sua resposta: <span className="font-medium">{answer.selectedOptionText}</span>
-              </p>
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Resumo das Respostas</h3>
+            <div className="space-y-3">
+              {result.answersSummary.map((answer, index) => (
+                <div key={index} className="rounded-lg border border-border p-4">
+                  <p className="font-medium">{answer.questionText}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Sua resposta: <span className="font-medium">{answer.selectedOptionText}</span>
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
