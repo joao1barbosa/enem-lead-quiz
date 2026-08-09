@@ -38,15 +38,15 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
     <Card className="overflow-hidden" style={{ height: `${TABLE_HEIGHT}px` }}>
       <CardContent className="p-0 h-full flex flex-col">
         <div className="flex-1 flex flex-col">
-          <Table data-testid="leads-table">
+          <Table data-testid="leads-table" className="w-full">
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="px-4 py-3">Nome</TableHead>
-                <TableHead className="px-4 py-3 hidden md:table-cell">Email</TableHead>
-                <TableHead className="px-4 py-3 hidden md:table-cell">Telefone</TableHead>
-                <TableHead className="px-4 py-3 hidden md:table-cell">Score</TableHead>
-                <TableHead className="px-4 py-3">Faixa</TableHead>
-                <TableHead className="px-4 py-3 hidden md:table-cell">Data</TableHead>
+                <TableHead className="px-4 py-2 md:py-3">Nome</TableHead>
+                <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Email</TableHead>
+                <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Telefone</TableHead>
+                <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Score</TableHead>
+                <TableHead className="px-4 py-2 md:py-3">Faixa</TableHead>
+                <TableHead className="px-4 py-2 md:py-3 hidden md:table-cell">Data</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -56,16 +56,16 @@ export function LeadsTable({ leads, onLeadClick }: LeadsTableProps) {
                   onClick={() => onLeadClick(lead)}
                   className="cursor-pointer hover:bg-muted"
                 >
-                  <TableCell className="px-4 py-3">{lead.name}</TableCell>
-                  <TableCell className="px-4 py-3 max-w-[240px] truncate hidden md:table-cell">{lead.email}</TableCell>
-                  <TableCell className="px-4 py-3 hidden md:table-cell">{formatPhone(lead.phone)}</TableCell>
-                  <TableCell className="px-4 py-3 text-center hidden md:table-cell">{lead.score}</TableCell>
-                  <TableCell className="px-4 py-3 flex justify-center">
+                  <TableCell className="px-4 py-2 md:py-3 max-w-0 truncate whitespace-nowrap">{lead.name}</TableCell>
+                  <TableCell className="px-4 py-2 md:py-3 max-w-[240px] truncate hidden md:table-cell">{lead.email}</TableCell>
+                  <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">{formatPhone(lead.phone)}</TableCell>
+                  <TableCell className="px-4 py-2 md:py-3 text-center hidden md:table-cell">{lead.score}</TableCell>
+                  <TableCell className="px-4 py-2 md:py-3 flex justify-center">
                     <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100/80 text-gray-800 border-gray-300 rounded-full'}>
                       {lead.diagnosticTitle}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 hidden md:table-cell">
+                  <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">
                     {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
                   </TableCell>
                 </TableRow>
