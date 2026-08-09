@@ -6,11 +6,12 @@ interface ProgressBarProps {
 }
 
 /**
- * Calculates the progress percentage (0-100) for the current question.
- * Rounded to avoid floating-point artifacts (e.g. 1/3 * 100 = 33.333...).
+ * Calculates the progress percentage (0-90) for the current question.
+ * Question 1 = 0%, question 10 = 90% (10% increments).
+ * Rounded to avoid floating-point artifacts.
  */
 export function getProgressPercentage(current: number, total: number): number {
-  return Math.round((current / total) * 100);
+  return Math.round(((current - 1) / total) * 100);
 }
 
 export function ProgressBar({ current, total }: ProgressBarProps) {

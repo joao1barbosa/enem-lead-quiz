@@ -13,7 +13,7 @@ describe('ProgressBar', () => {
     render(<ProgressBar current={3} total={10} />);
 
     const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '30');
+    expect(progressBar).toHaveAttribute('aria-valuenow', '20');
     expect(progressBar).toHaveAttribute('aria-valuemin', '0');
     expect(progressBar).toHaveAttribute('aria-valuemax', '100');
   });
@@ -22,20 +22,20 @@ describe('ProgressBar', () => {
     render(<ProgressBar current={5} total={10} />);
 
     const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '50');
+    expect(progressBar).toHaveAttribute('aria-valuenow', '40');
   });
 
   it('should handle edge case: first question', () => {
     render(<ProgressBar current={1} total={10} />);
 
     const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '10');
+    expect(progressBar).toHaveAttribute('aria-valuenow', '0');
   });
 
   it('should handle edge case: last question', () => {
     render(<ProgressBar current={10} total={10} />);
 
     const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '100');
+    expect(progressBar).toHaveAttribute('aria-valuenow', '90');
   });
 });
