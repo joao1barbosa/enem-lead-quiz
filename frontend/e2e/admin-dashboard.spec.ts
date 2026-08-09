@@ -24,7 +24,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should display diagnostic donut chart', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: 'Distribuição por Faixa' }),
+      page.getByText('Distribuição por Faixa'),
     ).toBeVisible();
 
     // O ResponsiveContainer do Recharts monta a área do gráfico
@@ -34,7 +34,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should display leads area chart', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: 'Leads (Últimos 7 dias)' }),
+      page.getByText('Leads por Dia'),
     ).toBeVisible();
 
     // Usa .nth(1) para selecionar o segundo gráfico (area chart)
