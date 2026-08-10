@@ -217,6 +217,18 @@ function selectAnswersForTarget(
 async function main() {
   console.log('Iniciando seed...');
 
+  // Verifica se o banco já foi populado (seed idempotente)
+  const existingQuestions = await prisma.question.count();
+  const existingLeads = await prisma.lead.count();
+  const existingAdmin = await prisma.admin.count();
+
+  if (existingQuestions > 0 && existingLeads > 0 && existingAdmin > 0) {
+    console.log('Banco já populado. Seed ignorado.');
+    return;
+  }
+
+  console.log(`Estado atual: ${existingQuestions} perguntas, ${existingLeads} leads, ${existingAdmin} admins`);
+
   for (const q of questions) {
     await prisma.question.upsert({
       where: { order: q.order },
@@ -250,9 +262,11 @@ async function main() {
   });
   console.log('Admin padrão criado (admin@admin.com / admin123).');
 
-  // Limpar leads existentes (respostas são removidas por cascade).
-  await prisma.lead.deleteMany();
-  console.log('Leads antigos removidos.');
+  // Limpar leads existentes apenas se houver leads (respostas são removidas por cascade).
+  if (existingLeads > 0) {
+    await prisma.lead.deleteMany();
+    console.log('Leads antigos removidos.');
+  }
 
   // Perguntas reais do banco (com alternativas persistidas).
   const quizQuestions = await prisma.question.findMany({
