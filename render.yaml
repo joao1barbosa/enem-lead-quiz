@@ -1,14 +1,3 @@
-# Render Blueprint - ENEM Lead Quiz
-# Documentação: https://docs.render.com/blueprints
-#
-# Para deployar:
-# 1. Acesse https://render.com e faça login
-# 2. Clique em "New +" → "Blueprint"
-# 3. Conecte este repositório GitHub
-# 4. O Render criará todos os serviços automaticamente
-# 5. Após o deploy do backend, configure VITE_API_URL no frontend
-#    (veja instruções abaixo)
-
 services:
   # ------------------------------------------
   # Backend - Web Service
@@ -36,21 +25,7 @@ services:
       - key: THROTTLE_LIMIT
         value: 5
     healthCheckPath: /
-
-  # ------------------------------------------
-  # Frontend - Web Service (Docker)
-  # ------------------------------------------
-  # ⚠️ APÓS O DEPLOY: Configure a variável VITE_API_URL no dashboard do Render
-  #    com a URL pública do backend (ex: https://enem-quiz-backend.onrender.com)
-  #    e redeploye o frontend.
-  - type: web
-    name: enem-quiz-frontend
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    envVars:
-      - key: VITE_API_URL
-        value: https://enem-quiz-backend-rry9.onrender.com
-
+    
 databases:
   # ------------------------------------------
   # PostgreSQL - Managed Database
