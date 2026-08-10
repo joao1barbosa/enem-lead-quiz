@@ -64,7 +64,7 @@ export function LeadsTable({ leads, onLeadClick, hasFilters }: LeadsTableProps) 
                     <TableCell className="px-4 py-2 md:py-3 max-w-[240px] truncate hidden md:table-cell">{lead.email}</TableCell>
                     <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">{formatPhone(lead.phone)}</TableCell>
                     <TableCell className="px-4 py-2 md:py-3 text-center hidden md:table-cell">{lead.score}</TableCell>
-                    <TableCell className="px-4 py-2 md:py-3 w-[1%] whitespace-nowrap flex justify-center">
+                    <TableCell className="px-4 py-2 md:py-3 w-[1%] whitespace-nowrap flex justify-end md:justify-center">
                       <Badge className={DIAGNOSTIC_BADGE_CLASSES[lead.diagnosticSlug] || 'bg-gray-100/80 text-gray-800 border-gray-300 rounded-full'}>
                         {lead.diagnosticTitle}
                       </Badge>
