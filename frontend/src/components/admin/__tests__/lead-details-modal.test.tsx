@@ -37,7 +37,7 @@ describe('LeadDetailsModal', () => {
     vi.restoreAllMocks();
   });
 
-  it('should render contact info, result and answers summary', async () => {
+  it('should render contact info, score circle and toggle answers', async () => {
     vi.spyOn(api.api, 'get').mockResolvedValue({ data: DETAILS });
     render(<LeadDetailsModal leadId="lead-1" onClose={vi.fn()} />, { wrapper });
 
@@ -47,18 +47,27 @@ describe('LeadDetailsModal', () => {
     expect(screen.getByText('(11) 99999-9999')).toBeInTheDocument();
     expect(screen.getByText('05/08/2026')).toBeInTheDocument();
 
-    expect(screen.getByText('Resultado')).toBeInTheDocument();
+    // ScoreCircle renders score
     expect(screen.getByText('75')).toBeInTheDocument();
     expect(screen.getByText('Na Trilha Certa')).toBeInTheDocument();
     expect(
       screen.getByText('Você está indo muito bem! Continue assim.')
     ).toBeInTheDocument();
 
-    expect(screen.getByText('Respostas')).toBeInTheDocument();
+    // Answers hidden by default, toggle button visible
+    expect(screen.getByRole('button', { name: 'Ver respostas' })).toBeInTheDocument();
+    expect(screen.queryByText('Como você estuda para o ENEM?')).not.toBeInTheDocument();
+
+    // Click to show answers
+    fireEvent.click(screen.getByRole('button', { name: 'Ver respostas' }));
     expect(screen.getByText('Como você estuda para o ENEM?')).toBeInTheDocument();
     expect(screen.getByText(/Sozinho/)).toBeInTheDocument();
     expect(screen.getByText('Quantas horas por semana?')).toBeInTheDocument();
     expect(screen.getByText(/5-10 horas/)).toBeInTheDocument();
+
+    // Click to hide answers
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar respostas' }));
+    expect(screen.queryByText('Como você estuda para o ENEM?')).not.toBeInTheDocument();
   });
 
   it('should show a skeleton while fetching details', () => {

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useLeadDetails } from '../../hooks/use-lead-details';
 import {
   Dialog,
@@ -10,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ScoreCircle } from '@/components/ui/score-circle';
 import { formatPhone } from '@/lib/format-phone';
 
 interface LeadDetailsModalProps {
@@ -19,13 +22,12 @@ interface LeadDetailsModalProps {
 
 /**
  * Modal de detalhes do lead (RF-06, US-07). Exibe informações de contato,
- * resultado do diagnóstico e resumo das respostas do quiz.
- *
- * Baseado no Dialog do shadcn/ui (Radix), que fornece focus-trap,
- * fechamento por ESC e role="dialog" nativos.
+ * resultado do diagnóstico (com ScoreCircle) e resumo das respostas do quiz
+ * (oculto por padrão, acessível via toggle).
  */
 export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
   const { data, isLoading, isError } = useLeadDetails(leadId);
+  const [showAnswers, setShowAnswers] = useState(false);
 
   return (
     <Dialog
@@ -77,57 +79,76 @@ export function LeadDetailsModal({ leadId, onClose }: LeadDetailsModalProps) {
 
         {data && (
           <div className="space-y-6">
+            {/* Score e Faixa */}
+            <section className="flex flex-col items-center space-y-4 py-4">
+              <ScoreCircle score={data.result.score} />
+              <div className="text-center">
+                <h3 className="text-2xl font-semibold">
+                  {data.result.diagnosticTitle}
+                </h3>
+                <p className="text-muted-foreground mt-1">
+                  {data.result.diagnosticMessage}
+                </p>
+              </div>
+            </section>
+
+            {/* Informações de Contato */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">
+              <h3 className="text-lg font-semibold mb-3">
                 Informações de Contato
               </h3>
-              <div className="space-y-1 text-sm">
-                <p>
-                  <strong>Nome:</strong> {data.contactInfo.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {data.contactInfo.email}
-                </p>
-                <p>
-                  <strong>Telefone:</strong> {formatPhone(data.contactInfo.phone)}
-                </p>
-                <p>
-                  <strong>Data de cadastro:</strong>{' '}
-                  {new Date(data.contactInfo.createdAt).toLocaleDateString(
-                    'pt-BR'
-                  )}
-                </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Nome</p>
+                  <p className="font-medium">{data.contactInfo.name}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Email</p>
+                  <p className="font-medium break-all">{data.contactInfo.email}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Telefone</p>
+                  <p className="font-medium">{formatPhone(data.contactInfo.phone)}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Data de cadastro</p>
+                  <p className="font-medium">
+                    {new Date(data.contactInfo.createdAt).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
               </div>
             </section>
 
+            {/* Respostas (toggle) */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">Resultado</h3>
-              <div className="space-y-1 text-sm">
-                <p>
-                  <strong>Pontuação:</strong> {data.result.score}
-                </p>
-                <p>
-                  <strong>Faixa:</strong> {data.result.diagnosticTitle}
-                </p>
-                <p>
-                  <strong>Mensagem:</strong> {data.result.diagnosticMessage}
-                </p>
-              </div>
-            </section>
+              <Button
+                variant="outline"
+                onClick={() => setShowAnswers(!showAnswers)}
+                className="w-full"
+              >
+                {showAnswers ? 'Ocultar respostas' : 'Ver respostas'}
+              </Button>
 
-            <section>
-              <h3 className="text-lg font-semibold mb-2">Respostas</h3>
-              <ul className="space-y-3">
-                {data.answersSummary.map((answer, index) => (
-                  <li key={index} className="text-sm border rounded-lg p-3">
-                    <p className="font-medium">{answer.questionText}</p>
-                    <p className="text-gray-600 mt-1">
-                      Resposta: {answer.selectedOptionText}
-                    </p>
-                    <p className="text-gray-500">Score: {answer.score}</p>
-                  </li>
-                ))}
-              </ul>
+              {showAnswers && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-3 mt-4"
+                >
+                  {data.answersSummary.map((answer, index) => (
+                    <div key={index} className="rounded-lg border border-border p-4">
+                      <p className="font-medium text-sm">{answer.questionText}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Resposta:{' '}
+                        <span className="font-medium">{answer.selectedOptionText}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Score: {answer.score}
+                      </p>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
             </section>
           </div>
         )}
