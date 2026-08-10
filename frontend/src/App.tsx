@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { QueryProvider } from './providers/query-provider';
 import { routes } from './routes';
 
-function AppRoutes() {
+export function AppRoutes() {
   return (
     <Routes>
       {routes.map((route) => (
