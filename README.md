@@ -28,22 +28,19 @@ Solução completa de um desafio técnico full-stack. A aplicação permite que 
 
 ## 🌐 Deploy em Produção
 
-- **Frontend**: https://enem-lead-quiz.vercel.app/
-- **Backend**: https://enem-quiz-backend-rry9.onrender.com
+- **Quiz**: https://enem-lead-quiz.vercel.app/
 - **Admin**: https://enem-lead-quiz.vercel.app/admin/login
-  - Email: `admin@admin.com`
-  - Senha: `admin123`
 
 ## 🏗 Arquitetura
 
 Aplicação full-stack com separação clara entre frontend e backend, comunicando via API REST:
 
 ```
-─────────────────────┐     ┌──────────────────────┐     ┌─────────────────┐
+┌─────────────────────┐     ┌──────────────────────┐     ┌───────────────────┐
 │  Vercel (Frontend)  │────▶│  Render (Backend)    │────▶│  Render (Postgres)│
-│  React + Vite       │HTTPS│  NestJS API          │     │  Managed DB      │
-│  CDN global         │     │  Port 10000          │     │                  │
-└─────────────────────┘     ──────────────────────┘     └─────────────────┘
+│  React + Vite       │HTTPS│  NestJS API          │     │  Managed DB       │
+│  CDN global         │     │  Port 10000          │     │                   │
+└─────────────────────┘     └──────────────────────┘     └───────────────────┘
 ```
 
 **Frontend:** SPA React com React Router para navegação, React Query para gerenciamento de estado servidor, Zustand para estado local do quiz, e shadcn/ui para componentes visuais consistentes.
@@ -78,21 +75,6 @@ Aplicação full-stack com separação clara entre frontend e backend, comunican
 
 **Trade-off:** Limite fixo por IP pode afetar usuários atrás de NAT compartilhado. Para produção, considerar limite por usuário autenticado.
 
-### 4. Score Circular com Cor Dinâmica
-
-**Decisão:** Componente `ScoreCircle` SVG com `stroke-dasharray` proporcional ao score e cor definida pela faixa diagnóstica.
-
-**Motivo:** Visual mais impactante que número simples, comunica rapidamente o nível de preparo através da cor (vermelho → âmbar → azul → verde).
-
-**Trade-off:** Componente reutilizável em outras partes do sistema (admin, relatórios).
-
-### 5. Seed Idempotente
-
-**Decisão:** Script de seed verifica se o banco já está populado antes de inserir dados.
-
-**Motivo:** Permitir redeploys sem duplicar dados. O seed cria 10 perguntas, admin padrão e 34 leads diversificados com respostas completas.
-
-**Trade-off:** Leads de teste são apagados e recriados a cada seed. Em produção, seed apenas para perguntas e admin.
 
 ##  API Reference
 
@@ -121,7 +103,7 @@ Aplicação full-stack com separação clara entre frontend e backend, comunican
 
 ## 📐 Regras de Negócio
 
-- **RB-01:** Quiz tem exatamente 10 perguntas com 4 alternativas cada
+- **RB-01:** Quiz tem exatamente 10 perguntas
 - **RB-02:** Cada alternativa tem score de 0 a 10
 - **RB-03:** Score total é soma dos scores das respostas (0-100)
 - **RB-04:** Faixa diagnóstica é determinada pelo score: 0-25 (Ponto de Partida), 26-50 (Em Construção), 51-75 (Na Trilha Certa), 76-100 (Reta Final)
@@ -170,12 +152,7 @@ docker compose up -d --build
 # Acessar aplicação
 # Frontend: http://localhost:5173
 # Backend: http://localhost:3000
-# Admin: http://localhost:5173/admin/login
 ```
-
-**Credenciais admin:**
-- Email: `admin@admin.com`
-- Senha: `admin123`
 
 ### Variáveis de Ambiente
 
