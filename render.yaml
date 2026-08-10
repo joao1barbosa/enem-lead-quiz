@@ -38,19 +38,18 @@ services:
     healthCheckPath: /
 
   # ------------------------------------------
-  # Frontend - Static Site
+  # Frontend - Web Service (Docker)
   # ------------------------------------------
   # ⚠️ APÓS O DEPLOY: Configure a variável VITE_API_URL no dashboard do Render
   #    com a URL pública do backend (ex: https://enem-quiz-backend.onrender.com)
   #    e redeploye o frontend.
   - type: web
     name: enem-quiz-frontend
-    env: static
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: ./frontend/dist
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
     envVars:
       - key: VITE_API_URL
-        value: https://enem-quiz-backend.onrender.com
+        value: https://enem-quiz-backend-rry9.onrender.com
 
 databases:
   # ------------------------------------------
