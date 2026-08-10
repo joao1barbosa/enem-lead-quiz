@@ -60,7 +60,7 @@ export function LeadsTable({ leads, onLeadClick, hasFilters }: LeadsTableProps) 
                     onClick={() => onLeadClick(lead)}
                     className="cursor-pointer hover:bg-muted"
                   >
-                    <TableCell className="px-4 py-2 md:py-3 w-full max-w-0 truncate whitespace-nowrap overflow-hidden">{lead.name}</TableCell>
+                    <TableCell className="px-4 py-2 md:py-3 w-full md:max-w-0 md:truncate md:whitespace-nowrap md:overflow-hidden">{lead.name}</TableCell>
                     <TableCell className="px-4 py-2 md:py-3 max-w-[240px] truncate hidden md:table-cell">{lead.email}</TableCell>
                     <TableCell className="px-4 py-2 md:py-3 hidden md:table-cell">{formatPhone(lead.phone)}</TableCell>
                     <TableCell className="px-4 py-2 md:py-3 text-center hidden md:table-cell">{lead.score}</TableCell>
