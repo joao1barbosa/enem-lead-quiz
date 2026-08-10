@@ -90,7 +90,7 @@ describe('useLeads', () => {
     expect(result.current.error).toBeDefined();
   });
 
-  it('should default to 5 leads per page on mobile viewport', async () => {
+  it('should default to 10 leads per page on mobile viewport', async () => {
     // Simula viewport mobile (max-width: 767px) — paginação responsiva (RNF-03)
     window.matchMedia = vi.fn().mockReturnValue({
       matches: true,
@@ -114,7 +114,7 @@ describe('useLeads', () => {
     });
 
     expect(api.api.get).toHaveBeenCalledWith('/api/admin/leads', {
-      params: { search: '', diagnostic: '', page: 1, limit: 5 },
+      params: { search: '', diagnostic: '', page: 1, limit: 10 },
     });
   });
 });

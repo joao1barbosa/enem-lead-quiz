@@ -1,6 +1,5 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { useIsMobile } from './use-is-mobile';
 
 export interface Lead {
   id: string;
@@ -36,10 +35,9 @@ export interface UseLeadsParams {
  * e 10 no desktop, salvo quando o caller define um `limit` explícito.
  */
 export function useLeads(params: UseLeadsParams = {}) {
-  const isMobile = useIsMobile();
   const { search = '', diagnostic = '', page = 1 } = params;
-  // Ajusta o pageSize dinamicamente: 5 no mobile, 10 no desktop.
-  const limit = params.limit ?? (isMobile ? 5 : 10);
+  // pageSize fixo em 10 registros por página (mobile e desktop).
+  const limit = params.limit ?? 10;
 
   return useQuery<LeadsResponse>({
     queryKey: ['leads', { search, diagnostic, page, limit }],

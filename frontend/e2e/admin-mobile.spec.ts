@@ -136,10 +136,10 @@ test.describe('Leads Table on Mobile', () => {
     await expect(page.locator('tbody tr').first()).toBeVisible();
   });
 
-  test('should display 5 leads per page on mobile', async ({ page }) => {
-    // Paginação responsiva: pageSize 5 no viewport mobile
-    await expect(page.locator('tbody tr')).toHaveCount(5);
-    await expect(page.getByText(/Mostrando 1-5 de \d+ leads/)).toBeVisible();
+  test('should display 10 leads per page on mobile', async ({ page }) => {
+    // Paginação: 10 registros por página (mobile e desktop)
+    await expect(page.locator('tbody tr')).toHaveCount(10);
+    await expect(page.getByText(/Mostrando 1-10 de \d+ leads/)).toBeVisible();
   });
 
   test('should show only Nome and Faixa columns on mobile', async ({ page }) => {
@@ -170,11 +170,9 @@ test.describe('Leads Table on Mobile', () => {
     await expect(
       page.getByRole('heading', { name: 'Informações de Contato' }),
     ).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: 'Resultado' }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: 'Respostas' }),
-    ).toBeVisible();
+    // ScoreCircle e faixa diagnóstica
+    await expect(page.getByText(/Pontuação:/)).toBeVisible();
+    // Botão de toggle de respostas
+    await expect(page.getByRole('button', { name: 'Ver respostas' })).toBeVisible();
   });
 });
