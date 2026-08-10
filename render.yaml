@@ -1,0 +1,63 @@
+# Render Blueprint - ENEM Lead Quiz (Docker)
+# Documentação: https://docs.render.com/blueprints
+#
+# Para deployar:
+# 1. Acesse https://render.com e faça login
+# 2. Clique em "New +" → "Blueprint"
+# 3. Conecte este repositório GitHub
+# 4. O Render criará todos os serviços automaticamente
+
+services:
+  # ------------------------------------------
+  # Backend - Web Service com Docker
+  # ------------------------------------------
+  - type: web
+    name: enem-quiz-backend
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: enem-quiz-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: THROTTLE_TTL
+        value: 60
+      - key: THROTTLE_LIMIT
+        value: 5
+    healthCheckPath: /
+
+  # ------------------------------------------
+  # Frontend - Static Site (sem Docker)
+  # ------------------------------------------
+  - type: web
+    name: enem-quiz-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm ci && VITE_API_URL=${BACKEND_URL} npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: enem-quiz-backend
+          type: web
+          property: url
+
+databases:
+  # ------------------------------------------
+  # PostgreSQL - Managed Database
+  # ------------------------------------------
+  - name: enem-quiz-db
+    databaseName: enem_quiz_db
+    user: quiz_user
+    region: oregon
+    plan: free

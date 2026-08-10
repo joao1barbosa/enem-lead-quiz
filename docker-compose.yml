@@ -1,48 +1,69 @@
-version: '3.8'
+# ============================================
+# ENEM Lead Quiz - Docker Compose
+# ============================================
+# Desenvolvimento local: docker compose up -d
+# Produção (Render): cada serviço é deployado separadamente
+# ============================================
 
 services:
+  # ------------------------------------------
+  # PostgreSQL (desenvolvimento local)
+  # No Render, use o PostgreSQL gerenciado
+  # ------------------------------------------
   db:
     image: postgres:16-alpine
-    container_name: quiz-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-quiz_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quiz_password}
       POSTGRES_DB: ${POSTGRES_DB:-quiz_db}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quiz_user} -d ${POSTGRES_DB:-quiz_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # ------------------------------------------
+  # Backend (NestJS)
+  # ------------------------------------------
   backend:
     build: ./backend
-    container_name: quiz-backend
-    ports:
-      - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://quiz_user:quiz_password@db:5432/quiz_db
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      PORT: 3000
-      NODE_ENV: development
-      THROTTLE_TTL: 60
-      THROTTLE_LIMIT: 5
+      DATABASE_URL: ${DATABASE_URL:-postgresql://quiz_user:quiz_password@db:5432/quiz_db}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PORT: ${PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      THROTTLE_TTL: ${THROTTLE_TTL:-60}
+      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-5}
+    ports:
+      - "${BACKEND_PORT:-3000}:${PORT:-3000}"
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:${PORT:-3000}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     command: >
       sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/main"
 
+  # ------------------------------------------
+  # Frontend (Vite + React - estático)
+  # ------------------------------------------
   frontend:
-    build: ./frontend
-    container_name: quiz-frontend
-    ports:
-      - "5173:5173"
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
     environment:
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
     depends_on:
       - backend
 
