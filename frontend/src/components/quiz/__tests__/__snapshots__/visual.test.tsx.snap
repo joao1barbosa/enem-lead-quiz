@@ -162,7 +162,145 @@ exports[`Visual regression > should snapshot QuestionCard with selected answer 1
 </div>
 `;
 
-exports[`Visual regression > should snapshot QuizFlow initial render 1`] = `
+exports[`Visual regression > should snapshot QuizFlow intro render 1`] = `
+<div>
+  <div
+    class="flex min-h-[70vh] flex-col items-center justify-center px-4 py-12"
+    style="opacity: 0; transform: translateY(20px);"
+  >
+    <div
+      class="flex w-full max-w-lg flex-col items-center space-y-8 text-center"
+    >
+      <div
+        class="space-y-4"
+      >
+        <h1
+          class="text-3xl font-semibold sm:text-4xl"
+        >
+          Descubra seu nível de preparo para o ENEM
+        </h1>
+        <p
+          class="text-base text-muted-foreground sm:text-lg"
+        >
+          Responda 
+          1
+           perguntas rápidas e receba um diagnóstico personalizado do seu desempenho.
+        </p>
+      </div>
+      <ul
+        class="w-full space-y-3"
+      >
+        <li
+          class="flex items-center justify-center gap-3 text-muted-foreground"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-clock h-5 w-5 text-primary"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <polyline
+              points="12 6 12 12 16 14"
+            />
+          </svg>
+          <span>
+            Leva menos de 3 minutos
+          </span>
+        </li>
+        <li
+          class="flex items-center justify-center gap-3 text-muted-foreground"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chart-column h-5 w-5 text-primary"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 3v16a2 2 0 0 0 2 2h16"
+            />
+            <path
+              d="M18 17V9"
+            />
+            <path
+              d="M13 17V5"
+            />
+            <path
+              d="M8 17v-3"
+            />
+          </svg>
+          <span>
+            Resultado imediato
+          </span>
+        </li>
+        <li
+          class="flex items-center justify-center gap-3 text-muted-foreground"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-target h-5 w-5 text-primary"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+          </svg>
+          <span>
+            Dicas personalizadas
+          </span>
+        </li>
+      </ul>
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 rounded-md px-8 w-full sm:w-auto"
+        data-testid="start-quiz-button"
+      >
+        Começar Quiz
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Visual regression > should snapshot QuizFlow question view 1`] = `
 <div>
   <div
     class="mx-auto max-w-2xl space-y-8 px-4 py-6"

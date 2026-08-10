@@ -12,6 +12,10 @@ test.describe('Quiz Flow - Mobile Responsiveness', () => {
 
     await page.goto('/');
 
+    // Tela de introdução também funciona no mobile (RNF-03)
+    await expect(page.getByTestId('start-quiz-button')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('start-quiz-button').click();
+
     // Quiz carrega normalmente no mobile
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
 

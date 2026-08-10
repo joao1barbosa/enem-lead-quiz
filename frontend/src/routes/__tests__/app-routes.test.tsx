@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoutes } from '../../App';
 import { useAuth } from '../../hooks/use-auth';
+import { useQuizStore } from '../../stores/quiz-store';
 import * as api from '../../lib/api';
 import type { Quiz } from '../../types/quiz';
 
@@ -56,6 +57,7 @@ describe('AppRoutes (redirecionamentos)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    useQuizStore.getState().reset();
     useAuth.setState({ token: null, user: null, isAuthenticated: false });
   });
 
@@ -95,6 +97,9 @@ describe('AppRoutes (redirecionamentos)', () => {
     vi.spyOn(api.api, 'get').mockResolvedValue({ data: mockQuizResponse });
 
     renderAt('/rota-que-nao-existe');
+
+    // A rota raiz abre na tela de introdução; o quiz começa após "Começar Quiz".
+    fireEvent.click(await screen.findByRole('button', { name: /começar quiz/i }));
 
     expect(
       await screen.findByText('Qual é a capital do Brasil?')

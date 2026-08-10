@@ -67,6 +67,33 @@ describe('QuizFlow', () => {
     mockSubmitLead.isPending = false;
     useQuizStore.getState().reset();
     useQuizStore.getState().setQuiz(mockQuiz);
+    // O estado padrão agora é 'intro'; os testes de fluxo começam direto nas perguntas.
+    useQuizStore.getState().setStage('quiz');
+  });
+
+  it('should show intro page before the quiz starts', () => {
+    useQuizStore.getState().setStage('intro');
+    render(<QuizFlow />);
+
+    expect(
+      screen.getByText('Descubra seu nível de preparo para o ENEM')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Responda 2 perguntas rápidas e receba um diagnóstico personalizado do seu desempenho.')).toBeInTheDocument();
+    expect(screen.getByTestId('start-quiz-button')).toBeInTheDocument();
+  });
+
+  it('should start the quiz and clear previous answers from intro', () => {
+    useQuizStore.getState().setStage('intro');
+    useQuizStore.getState().selectAnswer('q1', 'a1');
+    useQuizStore.getState().nextQuestion();
+    render(<QuizFlow />);
+
+    fireEvent.click(screen.getByTestId('start-quiz-button'));
+
+    expect(screen.getByText('Pergunta 1')).toBeInTheDocument();
+    expect(useQuizStore.getState().stage).toBe('quiz');
+    expect(useQuizStore.getState().selectedAnswers).toEqual({});
+    expect(useQuizStore.getState().currentQuestionIndex).toBe(0);
   });
 
   it('should render first question', () => {

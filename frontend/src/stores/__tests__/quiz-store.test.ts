@@ -156,11 +156,44 @@ describe('QuizStore', () => {
 
       useQuizStore.getState().reset();
 
-      expect(useQuizStore.getState().stage).toBe('quiz');
+      expect(useQuizStore.getState().stage).toBe('intro');
       expect(useQuizStore.getState().selectedAnswers).toEqual({});
       expect(useQuizStore.getState().currentQuestionIndex).toBe(0);
       expect(useQuizStore.getState().leadData).toBeNull();
       expect(useQuizStore.getState().result).toBeNull();
+    });
+  });
+
+  describe('startQuiz', () => {
+    it('should reset the quiz and move to the first question', () => {
+      const mockQuiz = {
+        id: 'test-quiz',
+        questions: [
+          { id: 'q1', order: 1, text: 'Q1', alternatives: [] },
+          { id: 'q2', order: 2, text: 'Q2', alternatives: [] },
+        ],
+      };
+      useQuizStore.getState().setQuiz(mockQuiz);
+      useQuizStore.getState().setStage('intro');
+      useQuizStore.getState().selectAnswer('q1', 'a1');
+      useQuizStore.getState().nextQuestion();
+      useQuizStore.getState().setResult({
+        score: 75,
+        diagnosticSlug: 'ON_RIGHT_TRACK',
+        diagnosticTitle: 'Na Trilha Certa',
+        diagnosticMessage: 'Você está indo muito bem!',
+        answersSummary: [],
+      });
+
+      useQuizStore.getState().startQuiz();
+
+      const state = useQuizStore.getState();
+      expect(state.stage).toBe('quiz');
+      expect(state.selectedAnswers).toEqual({});
+      expect(state.currentQuestionIndex).toBe(0);
+      expect(state.leadData).toBeNull();
+      expect(state.result).toBeNull();
+      expect(state.quiz).toEqual(mockQuiz);
     });
   });
 });

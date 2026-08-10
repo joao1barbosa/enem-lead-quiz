@@ -1,7 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import App from './App';
 import { api } from './lib/api';
+import { useQuizStore } from './stores/quiz-store';
 import type { Quiz } from './types/quiz';
 
 vi.mock('./lib/api', () => ({
@@ -33,14 +34,23 @@ const mockQuizResponse: { quiz: Quiz } = {
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useQuizStore.getState().reset();
   });
 
-  it('loads the quiz from the API and renders the first question', async () => {
+  it('shows the intro screen and starts the quiz from the first question', async () => {
     (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: mockQuizResponse,
     });
 
     render(<App />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /começar quiz/i })
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /começar quiz/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Qual é a capital do Brasil?')).toBeInTheDocument();

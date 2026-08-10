@@ -5,7 +5,7 @@ const initialQuizState: QuizState = {
   quiz: null,
   currentQuestionIndex: 0,
   selectedAnswers: {},
-  stage: 'quiz',
+  stage: 'intro',
   leadData: null,
   result: null,
 };
@@ -44,4 +44,16 @@ export const useQuizStore = create<QuizStore>((set) => ({
   setResult: (result) => set({ result }),
 
   reset: () => set({ ...initialQuizState }),
+
+  // Preserva o quiz já carregado e limpa apenas o progresso da tentativa
+  // anterior (respostas, dados do lead, resultado), voltando à pergunta 1.
+  startQuiz: () =>
+    set((state) => ({
+      currentQuestionIndex: 0,
+      selectedAnswers: {},
+      stage: 'quiz',
+      leadData: null,
+      result: null,
+      quiz: state.quiz,
+    })),
 }));

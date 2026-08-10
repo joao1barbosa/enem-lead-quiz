@@ -36,8 +36,16 @@ const mockQuiz = {
 };
 
 describe('Visual regression', () => {
-  it('should snapshot QuizFlow initial render', () => {
+  it('should snapshot QuizFlow intro render', () => {
     useQuizStore.getState().setQuiz(mockQuiz);
+
+    const { container } = render(<QuizFlow />);
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should snapshot QuizFlow question view', () => {
+    useQuizStore.getState().setQuiz(mockQuiz);
+    useQuizStore.getState().setStage('quiz');
 
     const { container } = render(<QuizFlow />);
     expect(container).toMatchSnapshot();

@@ -5,6 +5,7 @@ import { QuestionCard } from './question-card';
 import { ProgressBar } from './progress-bar';
 import { LeadForm } from './lead-form';
 import { ResultPage } from './result-page';
+import { IntroPage } from './intro-page';
 import { slideTransition, slideVariants } from './animation-variants';
 import { useQuiz } from '../../hooks/use-quiz';
 import { useSubmitLead } from '../../hooks/use-submit-lead';
@@ -25,6 +26,7 @@ export function QuizFlow() {
     setStage,
     setLeadData,
     setResult,
+    startQuiz,
   } = useQuizStore();
 
   const [direction, setDirection] = useState(0);
@@ -67,6 +69,12 @@ export function QuizFlow() {
 
   if (!quiz) {
     return <div>Carregando...</div>;
+  }
+
+  if (stage === 'intro') {
+    return (
+      <IntroPage totalQuestions={quiz.questions.length} onStart={startQuiz} />
+    );
   }
 
   if (stage === 'result' && result) {

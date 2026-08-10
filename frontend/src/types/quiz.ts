@@ -15,7 +15,7 @@ export interface Quiz {
   questions: Question[];
 }
 
-export type QuizStage = 'quiz' | 'form' | 'result';
+export type QuizStage = 'intro' | 'quiz' | 'form' | 'result';
 
 export interface LeadData {
   name: string;
@@ -52,6 +52,8 @@ export interface QuizActions {
   setLeadData: (data: LeadData) => void;
   setResult: (result: LeadResult) => void;
   reset: () => void;
+  /** Limpa o estado de uma tentativa anterior e inicia o quiz da primeira pergunta. */
+  startQuiz: () => void;
 }
 
 export type QuizStore = QuizState & QuizActions;

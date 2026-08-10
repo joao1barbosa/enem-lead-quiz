@@ -7,6 +7,8 @@ import { test, expect, type Page } from '@playwright/test';
 test.describe('Quiz Flow - Error Handling', () => {
   async function answerAllQuestions(page: Page): Promise<void> {
     await page.goto('/');
+    await expect(page.getByTestId('start-quiz-button')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('start-quiz-button').click();
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
 
     for (let i = 1; i <= 10; i++) {

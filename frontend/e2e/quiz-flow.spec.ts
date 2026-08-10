@@ -8,11 +8,9 @@ test.describe('Quiz Flow - Complete Journey', () => {
   test('should complete entire quiz flow', async ({ page }) => {
     await page.goto('/');
 
-    // Estado de loading inicial (transiente: o quiz pode carregar antes da
-    // asserção rodar, então toleramos qualquer um dos dois estados)
-    await expect(
-      page.getByText('Carregando quiz...').or(page.getByText('Pergunta 1 de 10')),
-    ).toBeVisible({ timeout: 10000 });
+    // Tela de introdução (US-01): apresenta o quiz antes de começar
+    await expect(page.getByTestId('start-quiz-button')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('start-quiz-button').click();
 
     // Quiz carregado com 10 perguntas
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
@@ -50,6 +48,8 @@ test.describe('Quiz Flow - Complete Journey', () => {
 
   test('should navigate between questions preserving answers', async ({ page }) => {
     await page.goto('/');
+    await expect(page.getByTestId('start-quiz-button')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('start-quiz-button').click();
     await expect(page.getByText('Pergunta 1 de 10')).toBeVisible({ timeout: 10000 });
 
     // Selecionar alternativa na pergunta 1
