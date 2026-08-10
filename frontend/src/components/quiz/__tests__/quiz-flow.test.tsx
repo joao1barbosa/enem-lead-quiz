@@ -271,6 +271,7 @@ describe('QuizFlow', () => {
       { timeout: 2000 }
     );
     expect(screen.getByText('75')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver respostas' }));
     expect(screen.getByText('Resumo das Respostas')).toBeInTheDocument();
   });
 

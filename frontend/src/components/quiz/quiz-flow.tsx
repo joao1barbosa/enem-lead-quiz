@@ -41,7 +41,7 @@ export function QuizFlow() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-2xl space-y-8 p-6">
+      <div className="mx-auto max-w-2xl space-y-8 px-4 py-6">
         <Skeleton className="h-8 w-3/4" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -108,7 +108,7 @@ export function QuizFlow() {
     };
 
     return (
-      <div className="mx-auto max-w-2xl space-y-8 p-6">
+      <div className="mx-auto max-w-2xl space-y-8 px-4 py-6">
         <div className="space-y-2">
           <h2 className="text-center text-2xl font-semibold">Quase lá!</h2>
           <p className="text-center text-muted-foreground">
@@ -143,7 +143,7 @@ export function QuizFlow() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-6">
+    <div className="mx-auto max-w-2xl space-y-8 px-4 py-6">
       <ProgressBar
         current={currentQuestionIndex + 1}
         total={quiz.questions.length}

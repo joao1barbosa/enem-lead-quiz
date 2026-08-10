@@ -38,7 +38,7 @@ export function QuestionCard({
                 data-testid={`alternative-${index}`}
                 onClick={() => onSelectAnswer(question.id, alternative.id)}
                 variant={isSelected ? 'default' : 'outline'}
-                className={`w-full justify-start text-base ${
+                className={`w-full justify-start text-base h-auto whitespace-normal ${
                   isSelected ? 'bg-primary' : ''
                 }`}
               >
